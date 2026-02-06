@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\DestinasiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,8 +31,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard', ['user' => auth()->user()]);
     })->name('admin.dashboard');
+    // Destinasi Routes (Admin Only)
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('destinasi', DestinasiController::class);
+    });
+
+
+
     
     Route::get('/wisatawan/dashboard', function () {
         return view('wisatawan.dashboard', ['user' => auth()->user()]);
     })->name('wisatawan.dashboard');
+
 });

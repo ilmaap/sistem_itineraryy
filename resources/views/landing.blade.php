@@ -243,7 +243,7 @@
                     <ul>
                         <li><a href="#">Beranda</a></li>
                         <li><a href="#">Paket Wisata</a></li>
-                        <li><a href="#">Masuk</a></li>
+                        <li><a href="{{ route('login') }}">Masuk</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
