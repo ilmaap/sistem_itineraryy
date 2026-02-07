@@ -8,7 +8,7 @@
         <ul class="nav-menu" id="navMenu">
             <li><a href="{{ route('admin.dashboard') }}" class="active">Beranda</a></li>
             <li><a href="{{ route('admin.destinasi.index') }}">Kelola Destinasi</a></li>
-            <li><a href="#">Kelola Paket</a></li>
+            <li><a href="{{ route('admin.paket.index') }}">Kelola Paket</a></li>
             <li><a href="#">Manajemen Pengguna</a></li>
             <li><a href="#">Kelola Hari Libur</a></li>
             <li><a href="{{ route('logout') }}">Keluar</a></li>

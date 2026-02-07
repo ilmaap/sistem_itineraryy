@@ -33,5 +33,16 @@ class Destinasi extends Model
         'rating' => 'decimal:2',
         'biaya' => 'decimal:2',
     ];
+
+    /**
+     * Relasi many-to-many ke Paket melalui pivot table paket_destinasi
+     */
+    public function paket()
+    {
+        return $this->belongsToMany(Paket::class, 'paket_destinasi', 'destinasi_id', 'paket_id')
+                    ->withPivot('order')
+                    ->withTimestamps()
+                    ->orderByPivot('order');
+    }
 }
 

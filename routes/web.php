@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DestinasiController;
+use App\Http\Controllers\PaketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,9 +32,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard', ['user' => auth()->user()]);
     })->name('admin.dashboard');
-    // Destinasi Routes (Admin Only)
+    // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('destinasi', DestinasiController::class);
+        Route::resource('paket', PaketController::class);
     });
 
 
