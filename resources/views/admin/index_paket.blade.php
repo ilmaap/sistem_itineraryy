@@ -38,7 +38,7 @@
                         type="text" 
                         name="search" 
                         class="search-input" 
-                        placeholder="Cari paket wisata..."
+                        placeholder="Cari paket wisata, durasi, atau harga..."
                         value="{{ $search }}"
                     >
                     <button type="submit" class="btn-search">
@@ -95,14 +95,14 @@
                                         <div class="action-buttons">
                                             <a href="{{ route('admin.paket.edit', $item->id) }}" class="btn-edit" title="Edit">
                                                 <i class="fas fa-edit"></i>
-                                                Edit
+                                                <!-- Edit -->
                                             </a>
                                             <form action="{{ route('admin.paket.destroy', $item->id) }}" method="POST" class="delete-form" style="display: inline;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn-delete" title="Hapus" onclick="return confirmDelete(event)">
                                                     <i class="fas fa-trash"></i>
-                                                    Hapus
+                                                    <!-- Hapus -->
                                                 </button>
                                             </form>
                                         </div>

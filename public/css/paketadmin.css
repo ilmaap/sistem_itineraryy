@@ -17,23 +17,27 @@ body {
 
 /* Page Header */
 .page-header {
+    margin-bottom: 2rem;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 2rem;
+    align-items: flex-end;
     flex-wrap: wrap;
     gap: 1rem;
 }
 
 .page-header-left {
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .page-title {
     font-size: 1.75rem;
     color: #1a202c;
-    margin: 0 0 0.5rem 0;
-    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .page-subtitle {
@@ -45,17 +49,17 @@ body {
 
 /* Buttons */
 .btn-add {
+    padding: 0.75rem 1.5rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 0.75rem 1.5rem;
+    border: none;
     border-radius: 8px;
     text-decoration: none;
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-weight: 600;
     transition: all 0.3s;
-    white-space: nowrap;
 }
 
 .btn-add:hover {
@@ -78,45 +82,46 @@ body {
 
 /* Search Container */
 .search-container {
-    margin-bottom: 1.5rem;
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
 }
 
 .search-form {
     display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
 }
 
 .search-input {
     flex: 1;
-    min-width: 200px;
     padding: 0.75rem 1rem;
     border: 2px solid #e5e7eb;
     border-radius: 8px;
     font-size: 1rem;
-    font-family: inherit;
     transition: border-color 0.3s;
 }
 
 .search-input:focus {
     outline: none;
     border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .btn-search {
+    padding: 0.75rem 1.5rem;
     background: #667eea;
     color: white;
-    padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
+    transition: background 0.3s;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     text-decoration: none;
-    transition: all 0.3s;
 }
 
 .btn-search:hover {
@@ -126,9 +131,10 @@ body {
 /* Table Container */
 .table-container {
     background: white;
+    padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    overflow: hidden;
+    overflow-x: auto;
 }
 
 table {
@@ -137,66 +143,55 @@ table {
 }
 
 thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: #f7fafc;
 }
 
-thead th {
+th {
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: #2d3748;
+    border-bottom: 2px solid #e5e7eb;
 }
 
-tbody tr {
-    border-bottom: 1px solid #e5e7eb;
-    transition: background 0.2s;
-}
-
-tbody tr:hover {
-    background: #f9fafb;
-}
-
-tbody td {
+td {
     padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
     color: #4a5568;
 }
 
-tbody td strong {
-    color: #1a202c;
+tr:hover {
+    background: #f9fafb;
 }
 
 /* Action Buttons */
 .action-buttons {
     display: flex;
     gap: 0.5rem;
-    flex-wrap: wrap;
 }
 
 .btn-edit {
+    padding: 0.5rem 1rem;
     background: #4299e1;
     color: white;
-    padding: 0.5rem 1rem;
+    border: none;
     border-radius: 6px;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-    transition: all 0.3s;
+    transition: background 0.3s;
 }
 
 .btn-edit:hover {
     background: #3182ce;
-    transform: translateY(-1px);
 }
 
 .btn-delete {
+    padding: 0.5rem 1rem;
     background: #e53e3e;
     color: white;
-    padding: 0.5rem 1rem;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -204,12 +199,11 @@ tbody td strong {
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-    transition: all 0.3s;
+    transition: background 0.3s;
 }
 
 .btn-delete:hover {
     background: #c53030;
-    transform: translateY(-1px);
 }
 
 /* Empty State */
@@ -220,47 +214,44 @@ tbody td strong {
 }
 
 .empty-state i {
-    font-size: 4rem;
+    font-size: 3rem;
     margin-bottom: 1rem;
     color: #cbd5e0;
 }
 
-.empty-state h3 {
-    color: #4a5568;
-    margin: 0.5rem 0;
-}
-
-.empty-state p {
-    margin: 0.5rem 0;
-}
-
 /* Pagination */
 .pagination-info {
-    padding: 1rem 1.5rem;
+    margin-top: 1.5rem;
     color: #718096;
-    font-size: 0.875rem;
-    border-top: 1px solid #e5e7eb;
+    font-size: 0.9rem;
 }
 
 .pagination-buttons {
     display: flex;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid #e5e7eb;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
 }
 
 .btn-pagination {
-    background: #667eea;
-    color: white;
     padding: 0.5rem 1rem;
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
     border-radius: 6px;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 500;
     transition: all 0.3s;
 }
 
 .btn-pagination:hover {
-    background: #5568d3;
+    background: #667eea;
+    color: white;
+}
+
+.btn-pagination:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Responsive Design */
@@ -275,11 +266,20 @@ tbody td strong {
 
     .page-header {
         flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .page-header-left {
+        width: 100%;
     }
 
     .btn-add {
         width: 100%;
         justify-content: center;
+    }
+
+    .search-container {
+        padding: 1rem;
     }
 
     .search-form {
@@ -290,37 +290,21 @@ tbody td strong {
         width: 100%;
     }
 
-    .btn-search {
-        width: 100%;
-        justify-content: center;
-    }
-
     .table-container {
-        overflow-x: auto;
+        padding: 1rem;
     }
 
     table {
-        min-width: 600px;
+        font-size: 0.875rem;
+    }
+
+    th, td {
+        padding: 0.75rem 0.5rem;
     }
 
     .action-buttons {
         flex-direction: column;
-    }
-
-    .btn-edit,
-    .btn-delete {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .pagination-buttons {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .btn-pagination {
-        width: 100%;
-        text-align: center;
+        gap: 0.25rem;
     }
 }
 
