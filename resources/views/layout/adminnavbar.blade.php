@@ -6,12 +6,17 @@
             <span>Itinerary Wisata</span>
         </a>
         <ul class="nav-menu" id="navMenu">
-            <li><a href="{{ route('admin.dashboard') }}" class="active">Beranda</a></li>
-            <li><a href="{{ route('admin.destinasi.index') }}">Kelola Destinasi</a></li>
-            <li><a href="{{ route('admin.paket.index') }}">Kelola Paket</a></li>
-            <li><a href="#">Manajemen Pengguna</a></li>
+            <li><a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Beranda</a></li>
+            <li><a href="{{ route('admin.destinasi.index') }}" class="{{ request()->routeIs('admin.destinasi.*') ? 'active' : '' }}">Kelola Destinasi</a></li>
+            <li><a href="{{ route('admin.paket.index') }}" class="{{ request()->routeIs('admin.paket.*') ? 'active' : '' }}">Kelola Paket</a></li>
+            <li><a href="{{ route('admin.user.index') }}" class="{{ request()->routeIs('admin.user.*') ? 'active' : '' }}">Manajemen Pengguna</a></li>
             <li><a href="#">Kelola Hari Libur</a></li>
-            <li><a href="{{ route('logout') }}">Keluar</a></li>
+            <li>
+                <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display: inline;">
+                    @csrf
+                    <a href="#" onclick="confirmLogout(event); return false;">Keluar</a>
+                </form>
+            </li>
         </ul>
         <div class="hamburger" id="hamburger">
             <span></span>
@@ -21,6 +26,7 @@
     </div>
 </nav>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Hamburger Menu Toggle
     const hamburger = document.getElementById('hamburger');
@@ -48,6 +54,27 @@
                     hamburger.classList.remove('active');
                 }
             });
+        });
+    }
+
+    // Logout Confirmation
+    function confirmLogout(event) {
+        event.preventDefault();
+        const form = document.getElementById('logoutForm');
+        
+        Swal.fire({
+            title: "Apakah Anda yakin?",
+            text: "Anda akan keluar dari sistem!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, keluar!",
+            cancelButtonText: "Batal"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
         });
     }
 </script>

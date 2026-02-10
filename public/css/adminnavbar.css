@@ -58,7 +58,7 @@
 
 .nav-menu a {
     text-decoration: none;
-    color: var(--text-dark);
+    color: #000000;
     font-weight: 500;
     transition: color 0.3s;
 }

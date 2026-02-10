@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DestinasiController;
 use App\Http\Controllers\PaketController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('destinasi', DestinasiController::class);
         Route::resource('paket', PaketController::class);
+        Route::resource('user', UserController::class);
     });
 
 
