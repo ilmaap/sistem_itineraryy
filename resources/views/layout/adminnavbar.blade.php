@@ -9,8 +9,18 @@
             <li><a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Beranda</a></li>
             <li><a href="{{ route('admin.destinasi.index') }}" class="{{ request()->routeIs('admin.destinasi.*') ? 'active' : '' }}">Kelola Destinasi</a></li>
             <li><a href="{{ route('admin.paket.index') }}" class="{{ request()->routeIs('admin.paket.*') ? 'active' : '' }}">Kelola Paket</a></li>
+            <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">
+                        Layanan Fasilitas
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Kelola Tempat Makan</a></li>
+                        <li><a href="#">Kelola Akomodasi</a></li>
+                    </ul>
+                </li>
             <li><a href="{{ route('admin.user.index') }}" class="{{ request()->routeIs('admin.user.*') ? 'active' : '' }}">Manajemen Pengguna</a></li>
-            <li><a href="#">Kelola Hari Libur</a></li>
+            <li><a href="{{ route('admin.libur_nasional.index') }}" class="{{ request()->routeIs('admin.libur_nasional.*') ? 'active' : '' }}">Kelola Hari Libur</a></li>
             <li>
                 <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display: inline;">
                     @csrf
@@ -40,16 +50,57 @@
 
         // Close menu when clicking outside
         document.addEventListener('click', (e) => {
-            if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
-                navMenu.classList.remove('active');
-                hamburger.classList.remove('active');
+            if (window.innerWidth <= 767) {
+                if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    hamburger.classList.remove('active');
+                }
             }
         });
 
-        // Close menu when clicking on a link
+        // Close menu when clicking on a link (except dropdown toggle)
         navMenu.querySelectorAll('a').forEach(link => {
+            // Skip dropdown toggle and dropdown menu links
+            if (!link.closest('.dropdown')) {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 767) {
+                        navMenu.classList.remove('active');
+                        hamburger.classList.remove('active');
+                    }
+                });
+            }
+        });
+    }
+
+    // Dropdown toggle for mobile and desktop
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    const dropdown = document.querySelector('.dropdown');
+    
+    if (dropdownToggle && dropdown) {
+        // Handle click on dropdown toggle
+        dropdownToggle.addEventListener('click', function(e) {
+            if (window.innerWidth <= 767) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdown.classList.toggle('active');
+            }
+        });
+
+        // Close dropdown when clicking outside (mobile only)
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 767) {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            }
+        });
+
+        // Close dropdown and menu when clicking on dropdown menu links (mobile only)
+        const dropdownLinks = dropdown.querySelectorAll('.dropdown-menu a');
+        dropdownLinks.forEach(link => {
             link.addEventListener('click', () => {
                 if (window.innerWidth <= 767) {
+                    dropdown.classList.remove('active');
                     navMenu.classList.remove('active');
                     hamburger.classList.remove('active');
                 }
