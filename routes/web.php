@@ -5,6 +5,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DestinasiController;
 use App\Http\Controllers\PaketController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\LiburNasionalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('destinasi', DestinasiController::class);
         Route::resource('paket', PaketController::class);
         Route::resource('user', UserController::class);
+        Route::resource('libur_nasional', LiburNasionalController::class);
     });
 
 
