@@ -1,13 +1,33 @@
-/* Login Page Styles (tanpa Vite) */
+/* Login Page Styles (tanpa Vite) - Selaras dengan Landing Page */
 :root {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --accent-color: #fbbf24;
+    /* Primary Colors - Turquoise/Teal (Hijau Toska) */
+    --primary-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+    --primary-color: #14b8a6;
+    --primary-dark: #0d9488;
+    --primary-light: #5eead4;
+    
+    /* Secondary Colors */
+    --secondary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --accent-color: #f59e0b;
+    --accent-light: #fbbf24;
+    --turquoise: #14b8a6;
+    --turquoise-dark: #0d9488;
+    --turquoise-light: #5eead4;
+    
+    /* Background Colors - Lebih soft */
     --bg-white: #ffffff;
-    --bg-light: #f9fafb;
-    --text-dark: #1f2937;
-    --text-gray: #6b7280;
-    --border-color: #e5e7eb;
+    --bg-light: #f8fafc;
+    --bg-lighter: #f1f5f9;
+    
+    /* Text Colors - Kontras yang lebih baik */
+    --text-dark: #0f172a;
+    --text-medium: #334155;
+    --text-gray: #64748b;
+    --text-light: #94a3b8;
+    
+    /* UI Colors */
+    --border-color: #e2e8f0;
+    --border-light: #f1f5f9;
 }
 
 * {
@@ -17,9 +37,11 @@
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    color: var(--text-dark);
-    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+    color: var(--text-medium);
+    background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-white) 100%);
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .auth-wrapper {
@@ -45,13 +67,13 @@ body {
 }
 
 .auth-wrapper::before {
-    background: #667eea;
+    background: var(--primary-color);
     top: -160px;
     right: -140px;
 }
 
 .auth-wrapper::after {
-    background: #f5576c;
+    background: var(--primary-dark);
     bottom: -170px;
     left: -150px;
 }
@@ -59,11 +81,11 @@ body {
 .auth-card {
     width: 100%;
     max-width: 460px;
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(229, 231, 235, 0.9);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    box-shadow: 0 20px 60px rgba(20, 184, 166, 0.15);
     padding: 2rem;
     position: relative;
     z-index: 1;
@@ -101,6 +123,10 @@ body {
     line-height: 1.6;
 }
 
+.auth-subtitle strong {
+    color: var(--text-dark);
+}
+
 .alert {
     padding: 0.9rem 1rem;
     border-radius: 12px;
@@ -136,8 +162,8 @@ label {
 }
 
 .input:focus {
-    border-color: rgba(102, 126, 234, 0.9);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.15);
 }
 
 .input-row {
@@ -149,7 +175,12 @@ label {
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: #9ca3af;
+    color: var(--text-gray);
+    transition: color 0.25s ease;
+}
+
+.input-row:focus-within .input-icon {
+    color: var(--primary-color);
 }
 
 .input.with-icon {
@@ -171,12 +202,12 @@ label {
     gap: 0.6rem;
     cursor: pointer;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 25px rgba(20, 184, 166, 0.3);
 }
 
 .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 35px rgba(0,0,0,0.28);
+    box-shadow: 0 14px 35px rgba(20, 184, 166, 0.4);
 }
 
 .auth-footer {
@@ -187,12 +218,14 @@ label {
 }
 
 .auth-footer a {
-    color: #667eea;
+    color: var(--primary-color);
     text-decoration: none;
     font-weight: 700;
+    transition: color 0.25s ease;
 }
 
 .auth-footer a:hover {
+    color: var(--primary-dark);
     text-decoration: underline;
 }
 

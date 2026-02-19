@@ -34,7 +34,22 @@ Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->na
 // Dashboard Routes (Protected)
 Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard', ['user' => auth()->user()]);
+        $user = auth()->user();
+        
+        // Get statistics
+        $stats = [
+            'total_users' => \App\Models\User::count(),
+            'total_destinasi' => \App\Models\Destinasi::count(),
+            'total_paket' => \App\Models\Paket::count(),
+            'total_restaurant' => \App\Models\Restaurant::count(),
+            'total_akomodasi' => \App\Models\Akomodasi::count(),
+            'total_libur' => \App\Models\LiburNasional::count(),
+        ];
+        
+        return view('admin.dashboard', [
+            'user' => $user,
+            'stats' => $stats
+        ]);
     })->name('admin.dashboard');
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
