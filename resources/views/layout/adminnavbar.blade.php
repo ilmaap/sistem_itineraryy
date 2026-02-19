@@ -10,13 +10,13 @@
             <li><a href="{{ route('admin.destinasi.index') }}" class="{{ request()->routeIs('admin.destinasi.*') ? 'active' : '' }}">Kelola Destinasi</a></li>
             <li><a href="{{ route('admin.paket.index') }}" class="{{ request()->routeIs('admin.paket.*') ? 'active' : '' }}">Kelola Paket</a></li>
             <li class="dropdown">
-                    <a href="#" class="dropdown-toggle">
+                    <a href="#" class="dropdown-toggle {{ request()->routeIs('admin.restaurant.*') || request()->routeIs('admin.akomodasi.*') ? 'active' : '' }}">
                         Layanan Fasilitas
                         <i class="fas fa-chevron-down"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Kelola Tempat Makan</a></li>
-                        <li><a href="#">Kelola Akomodasi</a></li>
+                        <li><a href="{{ route('admin.restaurant.index') }}" class="{{ request()->routeIs('admin.restaurant.*') ? 'active' : '' }}">Kelola Restaurant</a></li>
+                        <li><a href="{{ route('admin.akomodasi.index') }}" class="{{ request()->routeIs('admin.akomodasi.*') ? 'active' : '' }}">Kelola Akomodasi</a></li>
                     </ul>
                 </li>
             <li><a href="{{ route('admin.user.index') }}" class="{{ request()->routeIs('admin.user.*') ? 'active' : '' }}">Manajemen Pengguna</a></li>

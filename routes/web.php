@@ -6,6 +6,8 @@ use App\Http\Controllers\DestinasiController;
 use App\Http\Controllers\PaketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LiburNasionalController;
+use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\AkomodasiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +42,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('paket', PaketController::class);
         Route::resource('user', UserController::class);
         Route::resource('libur_nasional', LiburNasionalController::class);
+        Route::resource('restaurant', RestaurantController::class);
+        Route::resource('akomodasi', AkomodasiController::class);
     });
 
 
