@@ -19,6 +19,8 @@ class Destinasi extends Model
         'lokasi',
         'latitude',
         'longitude',
+        'jam_buka',
+        'jam_tutup',
         'rating',
         'biaya',
         'deskripsi'

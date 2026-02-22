@@ -43,13 +43,13 @@
                 <p class="welcome-subtitle">Rencanakan perjalanan wisata Anda dengan mudah</p>
                 
                 <div class="quick-actions">
-                    <div class="action-card">
+                    <a href="{{ route('wisatawan.itinerary.create') }}" class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-plus-circle"></i>
                         </div>
                         <div class="action-title">Buat Itinerary Baru</div>
                         <div class="action-desc">Buat rencana perjalanan baru</div>
-                    </div>
+                    </a>
                     <div class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-list"></i>

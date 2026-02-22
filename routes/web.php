@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\LiburNasionalController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\AkomodasiController;
+use App\Http\Controllers\ItineraryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,5 +68,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/wisatawan/dashboard', function () {
         return view('wisatawan.dashboard', ['user' => auth()->user()]);
     })->name('wisatawan.dashboard');
+
+    // Wisatawan Routes
+    Route::prefix('wisatawan')->name('wisatawan.')->group(function () {
+        Route::get('/itinerary/create', [ItineraryController::class, 'create'])->name('itinerary.create');
+        Route::get('/itinerary/{id}/edit', [ItineraryController::class, 'edit'])->name('itinerary.edit');
+        
+        // AJAX Endpoints
+        Route::get('/itinerary/destinations', [ItineraryController::class, 'getDestinations'])->name('itinerary.destinations');
+        Route::post('/itinerary/generate', [ItineraryController::class, 'generate'])->name('itinerary.generate');
+        Route::get('/api/holiday-info', [ItineraryController::class, 'getHolidayInfo'])->name('api.holiday-info');
+        
+        // Store itinerary
+        Route::post('/itinerary', [ItineraryController::class, 'store'])->name('itinerary.store');
+    });
 
 });

@@ -61,6 +61,7 @@
                                 <th>Nama Destinasi</th>
                                 <th>Kategori</th>
                                 <th>Alamat</th>
+                                <th>Jam Operasional</th>
                                 <th>Rating</th>
                                 <th>Aksi</th>
                             </tr>
@@ -76,6 +77,23 @@
                                         </span>
                                     </td>
                                     <td>{{ $item->alamat }}</td>
+                                    <td>
+                                        @if($item->jam_buka && $item->jam_tutup)
+                                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-clock" style="color: #14b8a6;"></i>
+                                                <span style="font-size: 0.875rem;">
+                                                    {{ date('H:i', strtotime($item->jam_buka)) }} - {{ date('H:i', strtotime($item->jam_tutup)) }}
+                                                </span>
+                                            </div>
+                                        @elseif($item->jam_buka)
+                                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-clock" style="color: #14b8a6;"></i>
+                                                <span style="font-size: 0.875rem;">Buka: {{ date('H:i', strtotime($item->jam_buka)) }}</span>
+                                            </div>
+                                        @else
+                                            <span style="color: #cbd5e0;">-</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         @if($item->rating)
                                             <div class="rating">

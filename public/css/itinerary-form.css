@@ -1,0 +1,801 @@
+/* Itinerary Form Styles */
+:root {
+    --primary-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+    --primary-color: #14b8a6;
+    --primary-dark: #0d9488;
+    --primary-light: #5eead4;
+    --bg-white: #ffffff;
+    --bg-light: #f8fafc;
+    --bg-lighter: #f1f5f9;
+    --text-dark: #0f172a;
+    --text-medium: #334155;
+    --text-gray: #64748b;
+    --text-light: #94a3b8;
+    --border-color: #e2e8f0;
+    --border-light: #f1f5f9;
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.container h2 {
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* Steps Indicator */
+.steps-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    position: relative;
+    padding: 0 2rem;
+}
+
+.steps-indicator::before {
+    content: '';
+    position: absolute;
+    top: 25px;
+    left: 2rem;
+    right: 2rem;
+    height: 2px;
+    background: var(--border-color);
+    z-index: 0;
+}
+
+.step-indicator {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.step-indicator .step-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--bg-white);
+    border: 3px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-gray);
+    transition: all 0.3s ease;
+}
+
+.step-indicator.active .step-circle {
+    background: var(--primary-gradient);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+}
+
+.step-indicator > div:last-child {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    font-weight: 500;
+}
+
+.step-indicator.active > div:last-child {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Step Content */
+.step-content {
+    background: var(--bg-white);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    display: none;
+}
+
+.step-content.active {
+    display: block;
+}
+
+.step-content h3 {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-light);
+}
+
+/* Form Section */
+.form-section {
+    margin-bottom: 2.5rem;
+}
+
+.form-section:last-child {
+    margin-bottom: 0;
+}
+
+.form-section h4 {
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+}
+
+.form-section h4 i {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group label i {
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+/* Input Fields */
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--bg-white);
+    color: var(--text-dark);
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+}
+
+/* Select Dropdown */
+.form-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--bg-white);
+    color: var(--text-dark);
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+}
+
+.form-select option {
+    padding: 0.5rem;
+}
+
+.form-select optgroup {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* Small Text */
+.form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--text-gray);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group small i {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+
+/* Error Messages */
+.error {
+    display: block;
+    color: var(--error);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Card */
+.card {
+    background: var(--bg-light);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.1);
+}
+
+.card label {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    cursor: pointer;
+    margin: 0;
+}
+
+.card label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 0.25rem;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+.card label > div {
+    flex: 1;
+}
+
+.card label > div > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.card label strong {
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.card label p {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Current Location Info */
+.current-location-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.current-location-info.hidden {
+    display: none;
+}
+
+/* Selected Location Info */
+#selectedLocationInfo {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+#selectedLocationInfo.show {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#selectedLocationInfo i {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+}
+
+#selectedLocationInfo strong {
+    display: block;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+#selectedLocationInfo span {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+/* Tanggal Info */
+#tanggalInfo {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+#tanggalInfo.show {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+#tanggalInfo i {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    margin-top: 0.25rem;
+}
+
+#tanggalInfo strong {
+    display: block;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+#tanggalInfo small {
+    color: var(--text-gray);
+    font-size: 0.85rem;
+}
+
+/* Manual Destinasi Section */
+#manualDestinasiSection {
+    display: none;
+}
+
+#manualDestinasiSection.show {
+    display: block;
+}
+
+/* Divider */
+.divider {
+    text-align: center;
+    margin: 1.5rem 0;
+    position: relative;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.divider span {
+    background: var(--bg-white);
+    padding: 0 1rem;
+    color: var(--text-gray);
+    position: relative;
+    font-size: 0.9rem;
+}
+
+/* Rating Slider */
+.rating-slider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.rating-slider input[type="range"] {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--border-light);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.rating-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(20, 184, 166, 0.3);
+}
+
+.rating-slider input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(20, 184, 166, 0.3);
+}
+
+.rating-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    min-width: 60px;
+}
+
+.rating-display i {
+    color: var(--warning);
+}
+
+/* Kategori List */
+.kategori-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.kategori-item {
+    position: relative;
+    cursor: pointer;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+    background: var(--bg-white);
+    display: flex;
+    align-items: center;
+}
+
+.kategori-item:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.kategori-item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.kategori-item:has(input[type="checkbox"]:checked) {
+    border-color: var(--primary-color);
+    background: #f0f9ff;
+}
+
+.kategori-item:has(input[type="checkbox"]:checked) .kategori-content {
+    color: var(--primary-color);
+}
+
+.kategori-item:has(input[type="checkbox"]:checked) .kategori-content i {
+    color: var(--primary-color) !important;
+}
+
+.kategori-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    color: var(--text-dark);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.kategori-content i {
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.kategori-content i.fa-mountain {
+    color: var(--success);
+}
+
+.kategori-content i.fa-monument {
+    color: var(--primary-color);
+}
+
+.kategori-content i.fa-building {
+    color: var(--warning);
+}
+
+.kategori-content i.fa-star {
+    color: var(--error);
+}
+
+/* Info Box */
+.info-box {
+    background: #f0f9ff;
+    border: 2px solid #bae6fd;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.info-box i {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.info-box strong {
+    display: block;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.info-box ul {
+    margin: 0.5rem 0 0 1.5rem;
+    color: var(--text-gray);
+    line-height: 1.8;
+}
+
+.info-box ul li {
+    margin-bottom: 0.5rem;
+}
+
+/* Filter Bar */
+.filter-bar {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+#destinasiResultsInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+/* Destinasi Grid */
+.destinasi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Pagination */
+#paginationControls {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+#paginationControls.show {
+    display: flex;
+}
+
+#paginationControls button {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border-color);
+    background: var(--bg-white);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#paginationControls button:hover:not(:disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+#paginationControls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#pageNumbers {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Selected Destinasi Info */
+#selectedDestinasiInfo {
+    display: none;
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+#selectedDestinasiInfo.show {
+    display: flex;
+}
+
+#selectedDestinasiInfo i {
+    color: var(--success);
+    font-size: 1.5rem;
+}
+
+#selectedDestinasiInfo strong {
+    display: block;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+#selectedDestinasiInfo small {
+    color: var(--text-gray);
+    font-size: 0.85rem;
+}
+
+/* Step Actions */
+.step-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border-light);
+}
+
+/* Buttons */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(20, 184, 166, 0.4);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text-dark);
+    border: 2px solid var(--border-color);
+}
+
+.btn-outline:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+/* Loading State */
+.loading-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-gray);
+}
+
+.loading-state i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.loading-state p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .steps-indicator {
+        padding: 0 1rem;
+    }
+    
+    .step-indicator .step-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+    
+    .step-indicator > div:last-child {
+        font-size: 0.75rem;
+    }
+    
+    .step-content {
+        padding: 1.5rem;
+    }
+    
+    .kategori-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .destinasi-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .step-actions {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .step-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Popular Location Label Hover Effect */
+.popular-location-label:hover {
+    background: #f8fafc;
+}
+

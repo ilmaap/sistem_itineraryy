@@ -21,6 +21,8 @@ return new class extends Migration
                 $table->enum('lokasi', ['solo', 'yogyakarta']); // enum
                 $table->decimal('latitude', 10, 8); // decimal(10,8)
                 $table->decimal('longitude', 11, 8); // decimal(11,8)
+                $table->time('jam_buka')->nullable(); // time, nullable
+                $table->time('jam_tutup')->nullable(); // time, nullable
                 $table->decimal('rating', 3, 2)->nullable(); // decimal(3,2), nullable
                 $table->decimal('biaya', 10, 2)->nullable(); // decimal(10,2), nullable
                 $table->text('deskripsi')->nullable(); // text, nullable

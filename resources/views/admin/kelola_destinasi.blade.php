@@ -137,6 +137,36 @@
 
                     <div class="form-row">
                         <div class="form-group">
+                            <label for="jam_buka">
+                                <i class="fas fa-clock"></i> Jam Buka
+                            </label>
+                            <input 
+                                type="time" 
+                                id="jam_buka" 
+                                name="jam_buka" 
+                                class="form-control" 
+                                value="{{ old('jam_buka', $destinasi->jam_buka ?? '') }}"
+                            >
+                            <small style="color: #718096; font-size: 0.875rem;">Waktu buka destinasi (opsional)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="jam_tutup">
+                                <i class="fas fa-clock"></i> Jam Tutup
+                            </label>
+                            <input 
+                                type="time" 
+                                id="jam_tutup" 
+                                name="jam_tutup" 
+                                class="form-control" 
+                                value="{{ old('jam_tutup', $destinasi->jam_tutup ?? '') }}"
+                            >
+                            <small style="color: #718096; font-size: 0.875rem;">Waktu tutup destinasi (opsional)</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="rating">
                                 <i class="fas fa-star"></i> Rating
                             </label>
