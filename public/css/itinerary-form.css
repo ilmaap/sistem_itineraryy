@@ -736,8 +736,10 @@
 /* Loading State */
 .loading-state {
     text-align: center;
-    padding: 3rem;
-    color: var(--text-gray);
+    padding: 2rem;
+    background: var(--bg-light);
+    border-radius: 12px;
+    color: var(--text-light);
 }
 
 .loading-state i {
@@ -749,6 +751,362 @@
 .loading-state p {
     font-size: 1rem;
     margin: 0;
+}
+
+/* Step 2 - Itinerary Result */
+.itinerary-result {
+    margin-bottom: 2rem;
+}
+
+/* Info Card */
+.itinerary-info-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.info-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.info-card-header h4 {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1.2rem;
+}
+
+.info-card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.info-card-item {
+    text-align: center;
+}
+
+.info-card-item label {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-gray);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.info-card-item .info-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Day Itinerary Card */
+.day-itinerary-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.day-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.day-badge {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.day-title h4 {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1.3rem;
+}
+
+.day-title p {
+    margin: 0.25rem 0 0 0;
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.day-destinasi-list {
+    margin-bottom: 1.5rem;
+}
+
+/* Destinasi Item Card */
+.destinasi-item-card {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.destinasi-time-col {
+    width: 140px;
+    flex-shrink: 0;
+}
+
+.time-box {
+    background: var(--bg-white);
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.875rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.distance-info {
+    margin-bottom: 0.25rem;
+}
+
+.distance-info small {
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+.travel-time-info {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--text-light);
+}
+
+.travel-time-info i {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.travel-time-info small {
+    font-size: 0.8rem;
+}
+
+.destinasi-content-col {
+    flex: 1;
+}
+
+.destinasi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.destinasi-header h5 {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    flex: 1;
+}
+
+.btn-delete-destinasi {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.3s;
+}
+
+.btn-delete-destinasi:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+.destinasi-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.info-item i {
+    color: var(--primary-color);
+}
+
+.info-item i.fa-star {
+    color: #f59e0b;
+}
+
+.destinasi-durasi {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.destinasi-durasi label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+}
+
+.durasi-select {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background: var(--bg-white);
+    color: var(--text-dark);
+}
+
+.durasi-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Day Recommendations */
+.day-recommendations {
+    border-top: 2px solid var(--border-color);
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-recommendation {
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-recommendation:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.btn-recommendation i {
+    font-size: 1rem;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-card {
+    background: var(--bg-white);
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-card.modal-large {
+    max-width: 700px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.modal-header h4 {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1.3rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-gray);
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    background: var(--bg-light);
+    color: var(--text-dark);
+}
+
+.modal-body {
+    margin-bottom: 1.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
 }
 
 /* Responsive */
@@ -792,10 +1150,773 @@
         width: 100%;
         justify-content: center;
     }
+    
+    .info-card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .destinasi-item-card {
+        flex-direction: column;
+    }
+    
+    .destinasi-time-col {
+        width: 100%;
+    }
+    
+    .day-recommendations {
+        flex-direction: column;
+    }
+    
+    .btn-recommendation {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .modal-card {
+        width: 95%;
+        padding: 1.5rem;
+    }
+}
+
+/* Recommendation List */
+.recommendation-list {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.recommendation-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.recommendation-header p {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1rem;
+}
+
+.recommendation-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s;
+}
+
+.recommendation-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(20, 184, 166, 0.1);
+}
+
+.recommendation-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.recommendation-content {
+    flex: 1;
+}
+
+.recommendation-content h5 {
+    margin: 0 0 0.75rem 0;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+}
+
+.recommendation-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.recommendation-info .info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.recommendation-info .info-item i {
+    color: var(--primary-color);
+}
+
+.recommendation-info .info-item i.fa-star {
+    color: #f59e0b;
+}
+
+.recommendation-desc {
+    margin: 0.5rem 0 0 0;
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* ========== RIWAYAT ITINERARY ========== */
+
+/* Page Header */
+.page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.page-header h1 {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-header p {
+    margin: 0;
+    color: var(--text-gray);
+    font-size: 1rem;
+}
+
+.page-header > .header-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.page-header > .header-title-wrapper p {
+    margin-top: 0.25rem;
+    color: var(--text-gray);
+    font-size: 0.95rem;
+}
+
+.page-header .header-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex: 1;
+}
+
+.page-header .header-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.page-header .header-title-wrapper .header-date {
+    padding: 0;
+    margin: 0;
+}
+
+.page-header .header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-shrink: 0;
+    padding-top: 0.5rem;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.btn-back-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 1rem;
+    transition: all 0.3s;
+    flex-shrink: 0;
+}
+
+.btn-back-icon:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateX(-2px);
+}
+
+.header-date {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: var(--text-gray);
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.header-date small {
+    color: var(--text-gray);
+}
+
+/* Alert */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.alert-success {
+    background: #d1fae5;
+    border: 1px solid #10b981;
+    color: #065f46;
+}
+
+.alert-success i {
+    color: #10b981;
+}
+
+/* Itinerary Grid */
+.itinerary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Itinerary Card */
+.itinerary-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.itinerary-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.15);
+    transform: translateY(-2px);
+}
+
+.itinerary-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.itinerary-card-header h3 {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1.3rem;
+    flex: 1;
+}
+
+.itinerary-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.itinerary-badge-yogyakarta {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.itinerary-badge-solo {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.itinerary-card-body {
+    flex: 1;
+    margin-bottom: 1rem;
+}
+
+.itinerary-info-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.info-item i {
+    color: var(--primary-color);
+    margin-top: 0.25rem;
+    font-size: 1rem;
+}
+
+.info-item div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-item .label {
+    font-size: 0.75rem;
+    color: var(--text-gray);
+    margin-bottom: 0.25rem;
+}
+
+.info-item .value {
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.itinerary-stats {
+    display: flex;
+    gap: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.stat-item i {
+    color: var(--primary-color);
+}
+
+.itinerary-card-footer {
+    display: flex;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.itinerary-card-footer .btn {
+    flex: 1;
+    justify-content: center;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--bg-light);
+    border-radius: 12px;
+    border: 2px dashed var(--border-color);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-dark);
+    font-size: 1.5rem;
+}
+
+.empty-state p {
+    margin: 0 0 2rem 0;
+    color: var(--text-gray);
+    font-size: 1rem;
+}
+
+/* Pagination */
+.pagination-wrapper {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination-wrapper .pagination {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pagination-wrapper .pagination li {
+    display: inline-block;
+}
+
+.pagination-wrapper .pagination a,
+.pagination-wrapper .pagination span {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.pagination-wrapper .pagination a:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.pagination-wrapper .pagination .active span {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Durasi Value */
+.durasi-value {
+    padding: 0.5rem;
+    background: var(--bg-light);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .itinerary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .itinerary-info-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .page-header .header-left {
+        flex-direction: row;
+        align-items: flex-start;
+        width: 100%;
+    }
+    
+    .page-header .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        padding-top: 0;
+        align-items: flex-start;
+    }
+    
+    .itinerary-card-footer {
+        flex-direction: column;
+    }
+    
+    .itinerary-card-footer .btn {
+        width: 100%;
+    }
 }
 
 /* Popular Location Label Hover Effect */
 .popular-location-label:hover {
     background: #f8fafc;
+}
+
+/* Print Styles */
+@media print {
+    /* Hide unnecessary elements */
+    nav,
+    .navbar,
+    .btn-back-icon,
+    .header-actions,
+    .btn,
+    button,
+    a[href]:after,
+    .nav-container,
+    .nav-menu {
+        display: none !important;
+    }
+    
+    /* Reset page margins */
+    @page {
+        margin: 1cm;
+        size: A4;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+        font-size: 11pt;
+        line-height: 1.4;
+    }
+    
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Header styling for print */
+    .page-header {
+        border-bottom: 1.5px solid #000 !important;
+        padding-bottom: 0.5rem !important;
+        margin-bottom: 0.75rem !important;
+        page-break-after: avoid;
+    }
+    
+    .page-header h1 {
+        font-size: 20pt !important;
+        color: #000 !important;
+        margin: 0 0 0.25rem 0 !important;
+        line-height: 1.2 !important;
+    }
+    
+    .header-date {
+        font-size: 9pt !important;
+        color: #666 !important;
+        margin: 0 !important;
+    }
+    
+    /* Info card styling */
+    .itinerary-info-card {
+        background: #f9f9f9 !important;
+        border: 1px solid #ddd !important;
+        padding: 0.6rem !important;
+        margin-bottom: 0.75rem !important;
+        page-break-inside: avoid;
+    }
+    
+    .info-card-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.5rem !important;
+    }
+    
+    .info-card-item {
+        page-break-inside: avoid;
+    }
+    
+    .info-card-item label {
+        font-weight: 600 !important;
+        color: #000 !important;
+        font-size: 9pt !important;
+        display: block !important;
+        margin-bottom: 0.15rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    .info-card-item .info-value {
+        color: #000 !important;
+        font-size: 10pt !important;
+        line-height: 1.3 !important;
+    }
+    
+    /* Day itinerary cards */
+    .day-itinerary-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        margin-bottom: 0.75rem !important;
+        border: 1px solid #ddd !important;
+        padding: 0.6rem !important;
+        background: white !important;
+    }
+    
+    .day-header {
+        border-bottom: 1px solid #ddd !important;
+        padding-bottom: 0.4rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .day-badge {
+        background: #000 !important;
+        color: white !important;
+        border: none !important;
+        font-size: 10pt !important;
+        padding: 0.2rem 0.4rem !important;
+    }
+    
+    .day-title h4 {
+        color: #000 !important;
+        font-size: 12pt !important;
+        margin: 0 0 0.15rem 0 !important;
+        line-height: 1.2 !important;
+    }
+    
+    .day-title p {
+        color: #666 !important;
+        font-size: 9pt !important;
+        margin: 0 !important;
+        line-height: 1.3 !important;
+    }
+    
+    /* Destination items */
+    .destinasi-item-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        border: 1px solid #e5e5e5 !important;
+        padding: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+        background: white !important;
+    }
+    
+    .destinasi-item-card:last-child {
+        margin-bottom: 0 !important;
+    }
+    
+    .time-box {
+        background: #f0f0f0 !important;
+        border: 1px solid #ddd !important;
+        color: #000 !important;
+        font-weight: 600 !important;
+        padding: 0.3rem 0.4rem !important;
+        font-size: 10pt !important;
+        line-height: 1.2 !important;
+    }
+    
+    .distance-info,
+    .travel-time-info {
+        color: #666 !important;
+        font-size: 8pt !important;
+        margin-top: 0.2rem !important;
+        line-height: 1.3 !important;
+    }
+    
+    .travel-time-info i {
+        display: none !important;
+    }
+    
+    .destinasi-header h5 {
+        color: #000 !important;
+        font-size: 11pt !important;
+        margin: 0 0 0.3rem 0 !important;
+        font-weight: 600 !important;
+        line-height: 1.3 !important;
+    }
+    
+    .destinasi-info {
+        margin-bottom: 0.3rem !important;
+    }
+    
+    .info-item {
+        color: #333 !important;
+        font-size: 9pt !important;
+        margin-bottom: 0.15rem !important;
+        line-height: 1.4 !important;
+    }
+    
+    .info-item i {
+        color: #666 !important;
+        margin-right: 0.4rem !important;
+        font-size: 8pt !important;
+    }
+    
+    .destinasi-durasi {
+        color: #333 !important;
+        font-size: 9pt !important;
+        margin-top: 0.2rem !important;
+    }
+    
+    .destinasi-durasi label {
+        font-weight: 600 !important;
+        margin-right: 0.3rem !important;
+    }
+    
+    .durasi-value {
+        background: #f0f0f0 !important;
+        border: 1px solid #ddd !important;
+        color: #000 !important;
+        padding: 0.2rem 0.4rem !important;
+        font-size: 9pt !important;
+    }
+    
+    /* Remove shadows and effects */
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    
+    /* Ensure proper page breaks */
+    .day-itinerary-card:not(:last-child) {
+        page-break-after: auto;
+    }
+    
+    /* Better spacing for print */
+    .itinerary-result {
+        margin-top: 0.5rem !important;
+    }
+    
+    .day-destinasi-list {
+        margin-top: 0.4rem !important;
+    }
+    
+    /* Remove any background images or gradients */
+    * {
+        background-image: none !important;
+    }
+    
+    /* Ensure links are readable */
+    a {
+        color: #000 !important;
+        text-decoration: none !important;
+    }
+    
+    /* Optimize column spacing */
+    .destinasi-time-col {
+        min-width: 80px !important;
+        margin-right: 0.5rem !important;
+    }
+    
+    .destinasi-content-col {
+        flex: 1 !important;
+    }
+    
+    /* Reduce icon sizes */
+    .page-header h1 i,
+    .destinasi-header h5 i {
+        font-size: 0.9em !important;
+    }
 }
 

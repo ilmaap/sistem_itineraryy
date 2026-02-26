@@ -11,7 +11,7 @@
         <!-- Opsi Lokasi Saat Ini -->
         <div class="form-group card">
             <label style="display: flex; align-items: flex-start; gap: 1rem; cursor: pointer; margin: 0;">
-                <input type="radio" id="useCurrentLocation" name="lokasi_awal_type" value="current" {{ old('lokasi_awal_type', 'current') == 'current' ? 'checked' : '' }} style="margin-top: 0.25rem; width: 20px; height: 20px; cursor: pointer; accent-color: #14b8a6;">
+                <input type="radio" id="useCurrentLocation" name="lokasi_awal_type" value="current" {{ old('lokasi_awal_type', isset($lokasiAwalType) ? $lokasiAwalType : 'current') == 'current' ? 'checked' : '' }} style="margin-top: 0.25rem; width: 20px; height: 20px; cursor: pointer; accent-color: #14b8a6;">
                 <div style="flex: 1;">
                     <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
                         <i class="fas fa-location-dot" style="color: #14b8a6;"></i>
@@ -21,7 +21,8 @@
                 </div>
             </label>
             @php
-                $showCurrentLocation = old('lokasi_awal_type', 'current') == 'current';
+                $defaultLokasiAwalType = old('lokasi_awal_type', isset($lokasiAwalType) ? $lokasiAwalType : 'current');
+                $showCurrentLocation = $defaultLokasiAwalType == 'current';
                 $currentLocationClass = $showCurrentLocation ? 'current-location-info' : 'current-location-info hidden';
             @endphp
             <div id="currentLocationInfo" class="{{ $currentLocationClass }}">
@@ -47,8 +48,10 @@
                 <span>Pilih Lokasi dari Daftar Populer</span>
             </label>
             @php
-                $isPopularSelected = old('lokasi_awal_type') == 'popular';
-                $isPopularDisabled = !$isPopularSelected && old('lokasi_awal_type', 'current') == 'current';
+                $defaultLokasiAwalType = old('lokasi_awal_type', isset($lokasiAwalType) ? $lokasiAwalType : 'current');
+                $isPopularSelected = $defaultLokasiAwalType == 'popular';
+                $isPopularDisabled = !$isPopularSelected && $defaultLokasiAwalType == 'current';
+                $lokasiPopulerSelected = old('lokasi_populer', isset($lokasiPopulerValue) ? $lokasiPopulerValue : '');
             @endphp
             <div style="margin-bottom: 0.75rem;">
                 <label class="popular-location-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: normal; padding: 0.5rem; border-radius: 6px; transition: background 0.2s;">
@@ -60,22 +63,22 @@
                 <option value="">-- Pilih Lokasi Populer --</option>
                 <optgroup label="Hotel & Penginapan">
                     @foreach($lokasiPopuler['hotel'] ?? [] as $lokasi)
-                        <option value="{{ $lokasi['value'] }}" {{ old('lokasi_populer') == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
+                        <option value="{{ $lokasi['value'] }}" {{ $lokasiPopulerSelected == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
                     @endforeach
                 </optgroup>
                 <optgroup label="Landmark & Titik Kumpul">
                     @foreach($lokasiPopuler['landmark'] ?? [] as $lokasi)
-                        <option value="{{ $lokasi['value'] }}" {{ old('lokasi_populer') == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
+                        <option value="{{ $lokasi['value'] }}" {{ $lokasiPopulerSelected == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
                     @endforeach
                 </optgroup>
                 <optgroup label="Destinasi Wisata Populer">
                     @foreach($lokasiPopuler['wisata'] ?? [] as $lokasi)
-                        <option value="{{ $lokasi['value'] }}" {{ old('lokasi_populer') == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
+                        <option value="{{ $lokasi['value'] }}" {{ $lokasiPopulerSelected == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
                     @endforeach
                 </optgroup>
                 <optgroup label="Mall & Pusat Perbelanjaan">
                     @foreach($lokasiPopuler['mall'] ?? [] as $lokasi)
-                        <option value="{{ $lokasi['value'] }}" {{ old('lokasi_populer') == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
+                        <option value="{{ $lokasi['value'] }}" {{ $lokasiPopulerSelected == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
                     @endforeach
                 </optgroup>
             </select>
@@ -110,7 +113,7 @@
                    name="tanggal_keberangkatan" 
                    required 
                    min="{{ date('Y-m-d') }}"
-                   value="{{ old('tanggal_keberangkatan') }}">
+                   value="{{ old('tanggal_keberangkatan', isset($itineraryConfig) && isset($itineraryConfig['tanggal_keberangkatan']) ? $itineraryConfig['tanggal_keberangkatan'] : '') }}">
             <small>
                 <i class="fas fa-info-circle"></i> Pilih tanggal mulai perjalanan untuk perhitungan waktu tempuh yang akurat
             </small>
@@ -132,7 +135,7 @@
             <select id="jumlahHari" name="jumlah_hari" class="form-select" required>
                 <option value="">-- Pilih --</option>
                 @for($i = 1; $i <= 7; $i++)
-                    <option value="{{ $i }}" {{ old('jumlah_hari') == $i ? 'selected' : '' }}>
+                    <option value="{{ $i }}" {{ old('jumlah_hari', isset($itineraryConfig) && isset($itineraryConfig['jumlah_hari']) ? $itineraryConfig['jumlah_hari'] : '') == $i ? 'selected' : '' }}>
                         {{ $i }} Hari
                     </option>
                 @endfor
@@ -148,8 +151,8 @@
             <input type="time" 
                    id="waktuMulai" 
                    name="waktu_mulai" 
-                   required 
-                   value="{{ old('waktu_mulai', '08:00') }}">
+                   required
+                   value="{{ old('waktu_mulai', isset($itineraryConfig) && isset($itineraryConfig['waktu_mulai']) ? $itineraryConfig['waktu_mulai'] : '08:00') }}">
             @error('waktu_mulai')
                 <span class="error">{{ $message }}</span>
             @enderror
@@ -163,8 +166,8 @@
             </label>
             <select id="lokasiWisata" name="lokasi_wisata" class="form-select" required>
                 <option value="">-- Pilih Lokasi --</option>
-                <option value="yogyakarta" {{ old('lokasi_wisata') == 'yogyakarta' ? 'selected' : '' }}>Yogyakarta</option>
-                <option value="solo" {{ old('lokasi_wisata') == 'solo' ? 'selected' : '' }}>Solo</option>
+                <option value="yogyakarta" {{ old('lokasi_wisata', isset($itineraryConfig) && isset($itineraryConfig['lokasi_wisata']) ? $itineraryConfig['lokasi_wisata'] : '') == 'yogyakarta' ? 'selected' : '' }}>Yogyakarta</option>
+                <option value="solo" {{ old('lokasi_wisata', isset($itineraryConfig) && isset($itineraryConfig['lokasi_wisata']) ? $itineraryConfig['lokasi_wisata'] : '') == 'solo' ? 'selected' : '' }}>Solo</option>
             </select>
             <small>
                 <i class="fas fa-info-circle"></i> Pilih lokasi destinasi wisata yang ingin dikunjungi
@@ -182,8 +185,8 @@
             </label>
             <select id="jenisJalur" name="jenis_jalur" class="form-select" required>
                 <option value="">-- Pilih Jenis Jalur --</option>
-                <option value="tol" {{ old('jenis_jalur', 'tol') == 'tol' ? 'selected' : '' }}>Tol</option>
-                <option value="non_tol" {{ old('jenis_jalur') == 'non_tol' ? 'selected' : '' }}>Non Tol</option>
+                <option value="tol" {{ old('jenis_jalur', isset($itineraryConfig) && isset($itineraryConfig['jenis_jalur']) ? $itineraryConfig['jenis_jalur'] : 'tol') == 'tol' ? 'selected' : '' }}>Tol</option>
+                <option value="non_tol" {{ old('jenis_jalur', isset($itineraryConfig) && isset($itineraryConfig['jenis_jalur']) ? $itineraryConfig['jenis_jalur'] : '') == 'non_tol' ? 'selected' : '' }}>Non Tol</option>
             </select>
             <small>
                 <i class="fas fa-info-circle"></i> Pilih jenis jalur perjalanan. Tol: menggunakan jalan tol. Non Tol: menggunakan jalan non tol.
@@ -206,7 +209,7 @@
                        min="0" 
                        max="5" 
                        step="0.1" 
-                       value="{{ old('min_rating', 0) }}">
+                       value="{{ old('min_rating', isset($itineraryConfig) && isset($itineraryConfig['min_rating']) ? $itineraryConfig['min_rating'] : 0) }}">
                 <div class="rating-display">
                     <span id="ratingDisplay">0.0</span>
                     <i class="fas fa-star"></i>
@@ -236,7 +239,7 @@
                                name="kategori[]" 
                                value="{{ $kode }}"
                                onchange="updateDestinasiList()"
-                               {{ in_array($kode, old('kategori', [])) ? 'checked' : '' }}>
+                               {{ in_array($kode, old('kategori', isset($kategoriSelected) ? $kategoriSelected : [])) ? 'checked' : '' }}>
                         <div class="kategori-content">
                             <i class="fas {{ $icon }}"></i>
                             <span>{{ $nama }}</span>

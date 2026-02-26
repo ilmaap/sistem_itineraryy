@@ -8,6 +8,8 @@ use App\Models\Itinerary;
 use App\Models\ItineraryDestinasi;
 use App\Models\LiburNasional;
 use App\Models\Kategori;
+use App\Models\Restaurant;
+use App\Models\Akomodasi;
 use Illuminate\Support\Facades\DB;
 
 class ItineraryController extends Controller
@@ -79,7 +81,10 @@ class ItineraryController extends Controller
      */
     public function edit($id)
     {
-        $itinerary = Itinerary::with('itineraryDestinasi.destinasi')
+        $itinerary = Itinerary::with([
+            'itineraryDestinasi.destinasi',
+            'kategori'
+        ])
             ->where('id', $id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
@@ -136,7 +141,88 @@ class ItineraryController extends Controller
             ]
         ];
         
-        return view('wisatawan.itinerary.create', compact('itinerary', 'kategori', 'lokasiPopuler'));
+        // Format data itinerary untuk pre-fill form
+        // Parse kategori dari JSON
+        $kategoriSelected = [];
+        if ($itinerary->kategori) {
+            $kategoriArray = json_decode($itinerary->kategori, true);
+            if (is_array($kategoriArray)) {
+                $kategoriSelected = $kategoriArray;
+            }
+        }
+        
+        // Format destinasi untuk pre-fill (mirip dengan format saat generate)
+        $itineraryData = [];
+        $destinasiPerHari = $itinerary->itineraryDestinasi->groupBy('no_hari');
+        
+        $tanggal = new \DateTime($itinerary->tgl_keberangkatan);
+        
+        foreach ($destinasiPerHari as $hari => $destinasiList) {
+            $hariData = [
+                'hari' => $hari,
+                'tanggal' => $tanggal->format('Y-m-d'),
+                'tanggal_formatted' => $this->formatTanggalIndonesia($tanggal),
+                'destinasi' => []
+            ];
+            
+            foreach ($destinasiList->sortBy('order') as $itineraryDest) {
+                $dest = $itineraryDest->destinasi;
+                $hariData['destinasi'][] = [
+                    'id' => $dest->id,
+                    'nama' => $dest->nama,
+                    'kategori' => $dest->kategori,
+                    'rating' => (float)$dest->rating,
+                    'biaya' => (float)$dest->biaya,
+                    'alamat' => $dest->alamat,
+                    'lat' => (float)$dest->latitude,
+                    'lng' => (float)$dest->longitude,
+                    'waktu_mulai' => substr($itineraryDest->waktu_tiba, 0, 5),
+                    'waktu_selesai' => substr($itineraryDest->waktu_selesai, 0, 5),
+                    'durasi' => $itineraryDest->durasi,
+                    'jarak_dari_sebelumnya' => (float)$itineraryDest->jarak_dari_sebelumnya,
+                    'waktu_tempuh' => 0
+                ];
+            }
+            
+            $itineraryData[] = $hariData;
+            $tanggal->modify('+1 day');
+        }
+        
+        // Format config untuk pre-fill
+        $itineraryConfig = [
+            'tanggal_keberangkatan' => $itinerary->tgl_keberangkatan->format('Y-m-d'), // Format untuk input date
+            'jumlah_hari' => $itinerary->total_hari,
+            'waktu_mulai' => substr($itinerary->waktu_mulai, 0, 5),
+            'lokasi_wisata' => $itinerary->lokasi,
+            'jenis_jalur' => $itinerary->jenis_jalur,
+            'min_rating' => $itinerary->min_rating,
+            'start_lat' => $itinerary->start_location_lat,
+            'start_lng' => $itinerary->start_location_lng,
+            'kategori' => $kategoriSelected
+        ];
+        
+        // Tentukan lokasi awal type (current atau popular)
+        // Cek apakah koordinat cocok dengan lokasi populer
+        $lokasiAwalType = 'current';
+        $lokasiPopulerValue = null;
+        
+        if ($itinerary->start_location_lat && $itinerary->start_location_lng) {
+            // Cek apakah cocok dengan lokasi populer
+            foreach ($lokasiPopuler as $group => $lokasiList) {
+                foreach ($lokasiList as $lokasi) {
+                    if (abs($lokasi['lat'] - $itinerary->start_location_lat) < 0.01 &&
+                        abs($lokasi['lng'] - $itinerary->start_location_lng) < 0.01) {
+                        $lokasiAwalType = 'popular';
+                        $lokasiPopulerValue = $lokasi['value'];
+                        break 2;
+                    }
+                }
+            }
+        }
+        
+        $isEditMode = true;
+        
+        return view('wisatawan.itinerary.create', compact('itinerary', 'kategori', 'lokasiPopuler', 'itineraryData', 'itineraryConfig', 'kategoriSelected', 'isEditMode', 'lokasiAwalType', 'lokasiPopulerValue'));
     }
 
     /**
@@ -310,7 +396,77 @@ class ItineraryController extends Controller
         $itinerary = $this->calculateSchedule(
             $destinasiPerHari,
             $validated['waktu_mulai'],
-            $tanggal
+            $tanggal,
+            $validated['start_lat'],
+            $validated['start_lng']
+        );
+        
+        return response()->json([
+            'success' => true,
+            'itinerary' => $itinerary,
+            'config' => $validated
+        ]);
+    }
+
+    /**
+     * Re-optimize itinerary (AJAX endpoint) - untuk menambah/mengubah destinasi
+     */
+    public function reoptimize(Request $request)
+    {
+        $validated = $request->validate([
+            'tanggal_keberangkatan' => 'required|date|after_or_equal:today',
+            'jumlah_hari' => 'required|integer|min:1|max:7',
+            'waktu_mulai' => 'required|date_format:H:i',
+            'lokasi_wisata' => 'required|in:yogyakarta,solo',
+            'jenis_jalur' => 'required|in:tol,non_tol',
+            'start_lat' => 'required|numeric',
+            'start_lng' => 'required|numeric',
+            'destinasi_ids' => 'required|array|min:1',
+            'destinasi_ids.*' => 'integer|exists:destinasi,id',
+            'destinasi_durasi' => 'nullable|array', // [destinasi_id => durasi]
+            'destinasi_durasi.*' => 'integer|min:60|max:480'
+        ]);
+        
+        // Ambil semua destinasi berdasarkan IDs
+        $destinasi = Destinasi::whereIn('id', $validated['destinasi_ids'])
+            ->get()
+            ->map(function($dest) use ($validated) {
+                $durasi = $validated['destinasi_durasi'][$dest->id] ?? 120;
+                return [
+                    'id' => $dest->id,
+                    'nama' => $dest->nama,
+                    'kategori' => $dest->kategori,
+                    'rating' => (float)$dest->rating,
+                    'biaya' => (float)$dest->biaya,
+                    'alamat' => $dest->alamat,
+                    'lat' => (float)$dest->latitude,
+                    'lng' => (float)$dest->longitude,
+                    'durasi' => $durasi
+                ];
+            })
+            ->toArray();
+        
+        // Optimasi rute menggunakan Nearest Neighbor
+        $optimizedDestinasi = $this->optimizeRoute(
+            $validated['start_lat'],
+            $validated['start_lng'],
+            $destinasi
+        );
+        
+        // Bagi destinasi per hari (minimal 3 per hari)
+        $destinasiPerHari = $this->distributeDestinations(
+            $optimizedDestinasi,
+            $validated['jumlah_hari']
+        );
+        
+        // Hitung jadwal dengan waktu tempuh
+        $tanggal = new \DateTime($validated['tanggal_keberangkatan']);
+        $itinerary = $this->calculateSchedule(
+            $destinasiPerHari,
+            $validated['waktu_mulai'],
+            $tanggal,
+            $validated['start_lat'],
+            $validated['start_lng']
         );
         
         return response()->json([
@@ -359,6 +515,146 @@ class ItineraryController extends Controller
     }
 
     /**
+     * Get restaurant recommendations for a specific day (AJAX endpoint)
+     */
+    public function getRestaurantRecommendations(Request $request)
+    {
+        $validated = $request->validate([
+            'hari' => 'required|integer|min:1',
+            'lokasi_wisata' => 'required|in:yogyakarta,solo',
+            'destinasi_lat' => 'nullable|numeric',
+            'destinasi_lng' => 'nullable|numeric',
+            'limit' => 'nullable|integer|min:1|max:20'
+        ]);
+
+        $hari = $validated['hari'];
+        $lokasi = $validated['lokasi_wisata'];
+        $limit = $validated['limit'] ?? 10;
+        
+        // Query restaurant berdasarkan lokasi
+        $query = Restaurant::where('lokasi', $lokasi);
+        
+        // Jika ada koordinat destinasi, urutkan berdasarkan jarak terdekat
+        if (!empty($validated['destinasi_lat']) && !empty($validated['destinasi_lng'])) {
+            $lat = $validated['destinasi_lat'];
+            $lng = $validated['destinasi_lng'];
+            
+            // Hitung jarak untuk setiap restaurant menggunakan Haversine
+            $restaurants = $query->get()->map(function($restaurant) use ($lat, $lng) {
+                $jarak = $this->haversineDistance(
+                    $lat,
+                    $lng,
+                    $restaurant->latitude,
+                    $restaurant->longitude
+                );
+                return [
+                    'id' => $restaurant->id,
+                    'nama' => $restaurant->nama,
+                    'alamat' => $restaurant->alamat,
+                    'rating' => (float)$restaurant->rating,
+                    'deskripsi' => $restaurant->deskripsi,
+                    'latitude' => (float)$restaurant->latitude,
+                    'longitude' => (float)$restaurant->longitude,
+                    'jarak' => round($jarak, 2)
+                ];
+            })->sortBy('jarak')->take($limit)->values();
+        } else {
+            // Jika tidak ada koordinat, urutkan berdasarkan rating
+            $restaurants = $query->orderBy('rating', 'desc')
+                ->take($limit)
+                ->get()
+                ->map(function($restaurant) {
+                    return [
+                        'id' => $restaurant->id,
+                        'nama' => $restaurant->nama,
+                        'alamat' => $restaurant->alamat,
+                        'rating' => (float)$restaurant->rating,
+                        'deskripsi' => $restaurant->deskripsi,
+                        'latitude' => (float)$restaurant->latitude,
+                        'longitude' => (float)$restaurant->longitude,
+                        'jarak' => null
+                    ];
+                });
+        }
+        
+        return response()->json([
+            'success' => true,
+            'hari' => $hari,
+            'data' => $restaurants
+        ]);
+    }
+
+    /**
+     * Get akomodasi recommendations for a specific day (AJAX endpoint)
+     */
+    public function getAkomodasiRecommendations(Request $request)
+    {
+        $validated = $request->validate([
+            'hari' => 'required|integer|min:1',
+            'lokasi_wisata' => 'required|in:yogyakarta,solo',
+            'destinasi_lat' => 'nullable|numeric',
+            'destinasi_lng' => 'nullable|numeric',
+            'limit' => 'nullable|integer|min:1|max:20'
+        ]);
+
+        $hari = $validated['hari'];
+        $lokasi = $validated['lokasi_wisata'];
+        $limit = $validated['limit'] ?? 10;
+        
+        // Query akomodasi berdasarkan lokasi
+        $query = Akomodasi::where('lokasi', $lokasi);
+        
+        // Jika ada koordinat destinasi, urutkan berdasarkan jarak terdekat
+        if (!empty($validated['destinasi_lat']) && !empty($validated['destinasi_lng'])) {
+            $lat = $validated['destinasi_lat'];
+            $lng = $validated['destinasi_lng'];
+            
+            // Hitung jarak untuk setiap akomodasi menggunakan Haversine
+            $akomodasi = $query->get()->map(function($akom) use ($lat, $lng) {
+                $jarak = $this->haversineDistance(
+                    $lat,
+                    $lng,
+                    $akom->latitude,
+                    $akom->longitude
+                );
+                return [
+                    'id' => $akom->id,
+                    'nama' => $akom->nama,
+                    'alamat' => $akom->alamat,
+                    'rating' => (float)$akom->rating,
+                    'deskripsi' => $akom->deskripsi,
+                    'latitude' => (float)$akom->latitude,
+                    'longitude' => (float)$akom->longitude,
+                    'jarak' => round($jarak, 2)
+                ];
+            })->sortBy('jarak')->take($limit)->values();
+        } else {
+            // Jika tidak ada koordinat, urutkan berdasarkan rating
+            $akomodasi = $query->orderBy('rating', 'desc')
+                ->take($limit)
+                ->get()
+                ->map(function($akom) {
+                    return [
+                        'id' => $akom->id,
+                        'nama' => $akom->nama,
+                        'alamat' => $akom->alamat,
+                        'rating' => (float)$akom->rating,
+                        'deskripsi' => $akom->deskripsi,
+                        'latitude' => (float)$akom->latitude,
+                        'longitude' => (float)$akom->longitude,
+                        'jarak' => null
+                    ];
+                });
+        }
+        
+        return response()->json([
+            'success' => true,
+            'hari' => $hari,
+            'data' => $akomodasi
+        ]);
+    }
+
+    /**
      * Store itinerary
      */
     public function store(Request $request)
@@ -366,7 +662,8 @@ class ItineraryController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'itinerary_data' => 'required|json',
-            'itinerary_config' => 'required|json'
+            'itinerary_config' => 'required|json',
+            'itinerary_id' => 'nullable|integer|exists:itinerary,id'
         ]);
         
         // Parse JSON data
@@ -378,28 +675,71 @@ class ItineraryController extends Controller
         }
         
         // Simpan kategori sebagai JSON string (sesuai struktur tabel)
-        $kategoriJson = !empty($itineraryConfig['kategori']) ? json_encode($itineraryConfig['kategori']) : null;
+        // Pastikan kategori tidak null, gunakan empty array jika kosong
+        $kategoriArray = !empty($itineraryConfig['kategori']) && is_array($itineraryConfig['kategori']) 
+            ? $itineraryConfig['kategori'] 
+            : [];
+        // Jika kategori kosong, set null (karena kolom nullable)
+        $kategoriJson = !empty($kategoriArray) ? json_encode($kategoriArray) : null;
         
-        // Simpan itinerary
         // Format waktu_mulai ke format time (HH:MM:SS)
         $waktuMulai = $itineraryConfig['waktu_mulai'];
         if (strlen($waktuMulai) == 5) { // Format HH:MM
             $waktuMulai .= ':00'; // Tambah detik menjadi HH:MM:SS
         }
         
-        $itinerary = Itinerary::create([
-            'user_id' => auth()->id(),
-            'nama' => $validated['nama'],
-            'tgl_keberangkatan' => $itineraryConfig['tanggal_keberangkatan'],
-            'total_hari' => $itineraryConfig['jumlah_hari'],
-            'waktu_mulai' => $waktuMulai,
-            'lokasi' => $itineraryConfig['lokasi_wisata'],
-            'min_rating' => $itineraryConfig['min_rating'] ?? 0,
-            'start_location_lat' => $itineraryConfig['start_lat'],
-            'start_location_lng' => $itineraryConfig['start_lng'],
-            'jenis_jalur' => $itineraryConfig['jenis_jalur'] ?? 'tol',
-            'kategori' => $kategoriJson
-        ]);
+        // Jika ada itinerary_id, berarti update
+        if (!empty($validated['itinerary_id'])) {
+            $itinerary = Itinerary::where('id', $validated['itinerary_id'])
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+            
+            // Update itinerary
+            $updateData = [
+                'nama' => $validated['nama'],
+                'tgl_keberangkatan' => $itineraryConfig['tanggal_keberangkatan'],
+                'total_hari' => $itineraryConfig['jumlah_hari'],
+                'waktu_mulai' => $waktuMulai,
+                'lokasi' => $itineraryConfig['lokasi_wisata'],
+                'min_rating' => $itineraryConfig['min_rating'] ?? 0,
+                'start_location_lat' => $itineraryConfig['start_lat'],
+                'start_location_lng' => $itineraryConfig['start_lng'],
+                'jenis_jalur' => $itineraryConfig['jenis_jalur'] ?? 'tol',
+            ];
+            
+            // Hanya update kategori jika ada nilai
+            if ($kategoriJson !== null) {
+                $updateData['kategori'] = $kategoriJson;
+            }
+            
+            $itinerary->update($updateData);
+            
+            // Hapus destinasi lama
+            ItineraryDestinasi::where('itinerary_id', $itinerary->id)->delete();
+            
+            $message = 'Itinerary berhasil diperbarui!';
+        } else {
+            // Create new itinerary
+            $createData = [
+                'user_id' => auth()->id(),
+                'nama' => $validated['nama'],
+                'tgl_keberangkatan' => $itineraryConfig['tanggal_keberangkatan'],
+                'total_hari' => $itineraryConfig['jumlah_hari'],
+                'waktu_mulai' => $waktuMulai,
+                'lokasi' => $itineraryConfig['lokasi_wisata'],
+                'min_rating' => $itineraryConfig['min_rating'] ?? 0,
+                'start_location_lat' => $itineraryConfig['start_lat'],
+                'start_location_lng' => $itineraryConfig['start_lng'],
+                'jenis_jalur' => $itineraryConfig['jenis_jalur'] ?? 'tol',
+            ];
+            
+            // Set kategori (bisa null jika kosong, karena kolom nullable)
+            $createData['kategori'] = $kategoriJson;
+            
+            $itinerary = Itinerary::create($createData);
+            
+            $message = 'Itinerary berhasil disimpan!';
+        }
         
         // Simpan kategori ke pivot table (relasi many-to-many)
         if (!empty($itineraryConfig['kategori'])) {
@@ -437,8 +777,109 @@ class ItineraryController extends Controller
             }
         }
         
-        return redirect()->route('wisatawan.dashboard')
-            ->with('success', 'Itinerary berhasil disimpan!');
+        return redirect()->route('wisatawan.itinerary.index')
+            ->with('success', $message);
+    }
+
+    /**
+     * Display a listing of the user's itineraries.
+     */
+    public function index()
+    {
+        $itineraries = Itinerary::where('user_id', auth()->id())
+            ->with('itineraryDestinasi.destinasi')
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+        
+        return view('wisatawan.itinerary.riwayat-index', compact('itineraries'));
+    }
+
+    /**
+     * Display the specified itinerary.
+     */
+    public function show($id)
+    {
+        $itinerary = Itinerary::with([
+            'itineraryDestinasi.destinasi',
+            'kategori'
+        ])
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+        
+        // Format data untuk ditampilkan (mirip dengan format saat generate)
+        $itineraryData = [];
+        $destinasiPerHari = $itinerary->itineraryDestinasi->groupBy('no_hari');
+        
+        $tanggal = new \DateTime($itinerary->tgl_keberangkatan);
+        
+        $lastDestinasiLat = $itinerary->start_location_lat;
+        $lastDestinasiLng = $itinerary->start_location_lng;
+        
+        foreach ($destinasiPerHari as $hari => $destinasiList) {
+            $hariData = [
+                'hari' => $hari,
+                'tanggal' => $tanggal->format('Y-m-d'),
+                'tanggal_formatted' => $this->formatTanggalIndonesia($tanggal),
+                'destinasi' => []
+            ];
+            
+            foreach ($destinasiList->sortBy('order') as $index => $itineraryDest) {
+                $dest = $itineraryDest->destinasi;
+                $jarak = (float)$itineraryDest->jarak_dari_sebelumnya;
+                
+                // Hitung waktu tempuh berdasarkan jarak dan tanggal
+                $waktuTempuh = 0;
+                if ($jarak > 0) {
+                    // Jika destinasi pertama hari pertama dan ada lokasi awal
+                    if ($index === 0 && $hari === 1 && $lastDestinasiLat && $lastDestinasiLng) {
+                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                    }
+                    // Jika destinasi pertama hari berikutnya
+                    elseif ($index === 0 && $hari > 1 && $lastDestinasiLat && $lastDestinasiLng) {
+                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                    }
+                    // Destinasi setelah destinasi pertama
+                    elseif ($index > 0) {
+                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                    }
+                }
+                
+                $hariData['destinasi'][] = [
+                    'id' => $dest->id,
+                    'nama' => $dest->nama,
+                    'kategori' => $dest->kategori,
+                    'rating' => (float)$dest->rating,
+                    'biaya' => (float)$dest->biaya,
+                    'alamat' => $dest->alamat,
+                    'lat' => (float)$dest->latitude,
+                    'lng' => (float)$dest->longitude,
+                    'waktu_mulai' => substr($itineraryDest->waktu_tiba, 0, 5), // HH:MM
+                    'waktu_selesai' => substr($itineraryDest->waktu_selesai, 0, 5), // HH:MM
+                    'durasi' => $itineraryDest->durasi,
+                    'jarak_dari_sebelumnya' => $jarak,
+                    'waktu_tempuh' => $waktuTempuh
+                ];
+                
+                // Simpan koordinat destinasi terakhir untuk hari berikutnya
+                $lastDestinasiLat = (float)$dest->latitude;
+                $lastDestinasiLng = (float)$dest->longitude;
+            }
+            
+            $itineraryData[] = $hariData;
+            $tanggal->modify('+1 day');
+        }
+        
+        // Parse kategori dari JSON
+        $kategoriSelected = [];
+        if ($itinerary->kategori) {
+            $kategoriArray = json_decode($itinerary->kategori, true);
+            if (is_array($kategoriArray)) {
+                $kategoriSelected = $kategoriArray;
+            }
+        }
+        
+        return view('wisatawan.itinerary.riwayat-show', compact('itinerary', 'itineraryData', 'kategoriSelected'));
     }
 
     // ========== HELPER METHODS ==========
@@ -554,10 +995,12 @@ class ItineraryController extends Controller
     /**
      * Hitung jadwal waktu untuk setiap destinasi
      */
-    private function calculateSchedule($destinasiPerHari, $waktuMulai, $tanggalKeberangkatan)
+    private function calculateSchedule($destinasiPerHari, $waktuMulai, $tanggalKeberangkatan, $startLat = null, $startLng = null)
     {
         $itinerary = [];
         $tanggal = clone $tanggalKeberangkatan;
+        $lastDestinasiLat = $startLat;
+        $lastDestinasiLng = $startLng;
         
         foreach ($destinasiPerHari as $hari => $destinasi) {
             $hariItinerary = [
@@ -567,22 +1010,64 @@ class ItineraryController extends Controller
                 'destinasi' => []
             ];
             
+            // Jika hari pertama, mulai dari waktu_mulai
+            // Jika hari berikutnya, mulai dari waktu_mulai juga (reset setiap hari)
             $waktuSaatIni = $this->parseTime($waktuMulai);
             
             foreach ($destinasi as $index => $dest) {
-                // Hitung waktu tempuh dari destinasi sebelumnya
+                // Hitung jarak dari destinasi sebelumnya atau lokasi awal
+                $jarak = 0;
                 $waktuTempuh = 0;
-                if ($index > 0) {
-                    $destSebelumnya = $destinasi[$index - 1];
+                
+                if ($index === 0 && $hari === 1) {
+                    // Destinasi pertama hari pertama: hitung dari lokasi awal
+                    if ($startLat && $startLng) {
+                        $jarak = $this->haversineDistance(
+                            $startLat,
+                            $startLng,
+                            $dest['lat'],
+                            $dest['lng']
+                        );
+                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                    }
+                } elseif ($index === 0 && $hari > 1) {
+                    // Destinasi pertama hari berikutnya: hitung dari destinasi terakhir hari sebelumnya
+                    if ($lastDestinasiLat && $lastDestinasiLng) {
+                        $jarak = $this->haversineDistance(
+                            $lastDestinasiLat,
+                            $lastDestinasiLng,
+                            $dest['lat'],
+                            $dest['lng']
+                        );
+                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                    }
+                } else {
+                    // Destinasi setelah destinasi pertama: gunakan distance dari optimizeRoute
                     $jarak = $dest['distance'] ?? 0;
                     $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
                 }
                 
                 // Waktu mulai = waktu selesai destinasi sebelumnya + waktu tempuh
-                $waktuMulaiDestinasi = $waktuSaatIni + ($index > 0 ? $waktuTempuh : 0);
+                // Tambahkan waktu tempuh jika:
+                // - Bukan destinasi pertama hari pertama (index > 0)
+                // - Atau destinasi pertama hari berikutnya (index === 0 && hari > 1)
+                // - Atau destinasi pertama hari pertama dengan lokasi awal (index === 0 && hari === 1 && startLat)
+                if ($index > 0) {
+                    // Destinasi setelah destinasi pertama dalam hari yang sama
+                    $waktuMulaiDestinasi = $waktuSaatIni + $waktuTempuh;
+                } elseif ($index === 0 && $hari === 1 && $startLat) {
+                    // Destinasi pertama hari pertama dari lokasi awal
+                    $waktuMulaiDestinasi = $waktuSaatIni + $waktuTempuh;
+                } elseif ($index === 0 && $hari > 1) {
+                    // Destinasi pertama hari berikutnya dari destinasi terakhir hari sebelumnya
+                    $waktuMulaiDestinasi = $waktuSaatIni + $waktuTempuh;
+                } else {
+                    // Destinasi pertama hari pertama tanpa lokasi awal (tidak ada waktu tempuh)
+                    $waktuMulaiDestinasi = $waktuSaatIni;
+                }
                 
                 // Durasi kunjungan (default 120 menit / 2 jam)
-                $durasi = 120;
+                $durasi = $dest['durasi'] ?? 120;
                 
                 // Waktu selesai = waktu mulai + durasi
                 $waktuSelesai = $waktuMulaiDestinasi + $durasi;
@@ -599,11 +1084,18 @@ class ItineraryController extends Controller
                     'waktu_mulai' => $this->menitKeWaktu($waktuMulaiDestinasi),
                     'waktu_selesai' => $this->menitKeWaktu($waktuSelesai),
                     'durasi' => $durasi,
-                    'jarak_dari_sebelumnya' => round($dest['distance'] ?? 0, 2),
+                    'jarak_dari_sebelumnya' => round($jarak, 2),
                     'waktu_tempuh' => $waktuTempuh
                 ];
                 
                 $waktuSaatIni = $waktuSelesai;
+            }
+            
+            // Simpan koordinat destinasi terakhir hari ini untuk hari berikutnya
+            if (!empty($destinasi)) {
+                $lastDest = end($destinasi);
+                $lastDestinasiLat = $lastDest['lat'];
+                $lastDestinasiLng = $lastDest['lng'];
             }
             
             $itinerary[] = $hariItinerary;

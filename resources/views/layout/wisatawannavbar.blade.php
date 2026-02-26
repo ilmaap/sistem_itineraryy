@@ -9,7 +9,7 @@
             <li><a href="{{ route('wisatawan.dashboard') }}">Beranda</a></li>
             <li><a href="{{ route('wisatawan.itinerary.create') }}">Buat Itinerary</a></li>
             <li><a href="#">Paket Wisata</a></li>
-            <li><a href="#">Riwayat</a></li>
+            <li><a href="{{ route('wisatawan.itinerary.index') }}">Riwayat</a></li>
             <!-- <li><a href="#">Kelola Hari Libur</a></li> -->
             <li>
                 <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display: inline;">

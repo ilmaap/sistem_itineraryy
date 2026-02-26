@@ -12,6 +12,9 @@
     <!-- Form Nama Itinerary -->
     <form method="POST" action="{{ route('wisatawan.itinerary.store') }}">
         @csrf
+        @if(isset($isEditMode) && $isEditMode && isset($itinerary))
+            <input type="hidden" name="itinerary_id" value="{{ $itinerary->id }}">
+        @endif
         
         <div class="form-group">
             <label for="namaItinerary">Nama Itinerary</label>
@@ -20,7 +23,7 @@
                    name="nama" 
                    placeholder="Contoh: Wisata Yogyakarta 2 Hari" 
                    required
-                   value="{{ old('nama') }}">
+                   value="{{ old('nama', isset($itinerary) ? $itinerary->nama : '') }}">
             @error('nama')
                 <span class="error">{{ $message }}</span>
             @enderror

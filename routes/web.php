@@ -71,13 +71,18 @@ Route::middleware('auth')->group(function () {
 
     // Wisatawan Routes
     Route::prefix('wisatawan')->name('wisatawan.')->group(function () {
+        Route::get('/itinerary', [ItineraryController::class, 'index'])->name('itinerary.index');
         Route::get('/itinerary/create', [ItineraryController::class, 'create'])->name('itinerary.create');
+        Route::get('/itinerary/{id}', [ItineraryController::class, 'show'])->name('itinerary.show');
         Route::get('/itinerary/{id}/edit', [ItineraryController::class, 'edit'])->name('itinerary.edit');
         
         // AJAX Endpoints
         Route::get('/itinerary/destinations', [ItineraryController::class, 'getDestinations'])->name('itinerary.destinations');
         Route::post('/itinerary/generate', [ItineraryController::class, 'generate'])->name('itinerary.generate');
+        Route::post('/itinerary/reoptimize', [ItineraryController::class, 'reoptimize'])->name('itinerary.reoptimize');
         Route::get('/api/holiday-info', [ItineraryController::class, 'getHolidayInfo'])->name('api.holiday-info');
+        Route::get('/api/restaurant-recommendations', [ItineraryController::class, 'getRestaurantRecommendations'])->name('api.restaurant-recommendations');
+        Route::get('/api/akomodasi-recommendations', [ItineraryController::class, 'getAkomodasiRecommendations'])->name('api.akomodasi-recommendations');
         
         // Store itinerary
         Route::post('/itinerary', [ItineraryController::class, 'store'])->name('itinerary.store');
