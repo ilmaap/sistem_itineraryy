@@ -398,7 +398,8 @@ class ItineraryController extends Controller
             $validated['waktu_mulai'],
             $tanggal,
             $validated['start_lat'],
-            $validated['start_lng']
+            $validated['start_lng'],
+            $validated['jenis_jalur']
         );
         
         return response()->json([
@@ -466,7 +467,8 @@ class ItineraryController extends Controller
             $validated['waktu_mulai'],
             $tanggal,
             $validated['start_lat'],
-            $validated['start_lng']
+            $validated['start_lng'],
+            $validated['jenis_jalur']
         );
         
         return response()->json([
@@ -489,7 +491,19 @@ class ItineraryController extends Controller
         $isHoliday = LiburNasional::where('tanggal', $tanggal->format('Y-m-d'))->exists();
         $isWeekend = $this->isWeekend($tanggal);
         $isHighSeason = $isWeekend || $isHoliday;
-        $kecepatan = $isHighSeason ? 120 : 140;
+        
+        // Ambil jenis jalur dari request (opsional, default 'tol')
+        $jenisJalur = $request->input('jenis_jalur', 'tol');
+        if (!in_array($jenisJalur, ['tol', 'non_tol'])) {
+            $jenisJalur = 'tol';
+        }
+        
+        // Hitung kecepatan berdasarkan kombinasi season dan jenis jalur
+        if ($isHighSeason) {
+            $kecepatan = $jenisJalur === 'tol' ? 130 : 100;
+        } else {
+            $kecepatan = $jenisJalur === 'tol' ? 150 : 120;
+        }
         
         // Format tanggal Indonesia
         $tanggalFormatted = $this->formatTanggalIndonesia($tanggal);
@@ -510,6 +524,7 @@ class ItineraryController extends Controller
             'tanggal_formatted' => $tanggalFormatted,
             'jenis_hari' => $jenisHari,
             'is_high_season' => $isHighSeason,
+            'jenis_jalur' => $jenisJalur,
             'kecepatan' => $kecepatan
         ]);
     }
@@ -828,20 +843,21 @@ class ItineraryController extends Controller
                 $dest = $itineraryDest->destinasi;
                 $jarak = (float)$itineraryDest->jarak_dari_sebelumnya;
                 
-                // Hitung waktu tempuh berdasarkan jarak dan tanggal
+                // Hitung waktu tempuh berdasarkan jarak, tanggal, dan jenis jalur
                 $waktuTempuh = 0;
+                $jenisJalur = $itinerary->jenis_jalur ?? 'tol';
                 if ($jarak > 0) {
                     // Jika destinasi pertama hari pertama dan ada lokasi awal
                     if ($index === 0 && $hari === 1 && $lastDestinasiLat && $lastDestinasiLng) {
-                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal, $jenisJalur);
                     }
                     // Jika destinasi pertama hari berikutnya
                     elseif ($index === 0 && $hari > 1 && $lastDestinasiLat && $lastDestinasiLng) {
-                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal, $jenisJalur);
                     }
                     // Destinasi setelah destinasi pertama
                     elseif ($index > 0) {
-                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal, $jenisJalur);
                     }
                 }
                 
@@ -995,7 +1011,7 @@ class ItineraryController extends Controller
     /**
      * Hitung jadwal waktu untuk setiap destinasi
      */
-    private function calculateSchedule($destinasiPerHari, $waktuMulai, $tanggalKeberangkatan, $startLat = null, $startLng = null)
+    private function calculateSchedule($destinasiPerHari, $waktuMulai, $tanggalKeberangkatan, $startLat = null, $startLng = null, $jenisJalur = 'tol')
     {
         $itinerary = [];
         $tanggal = clone $tanggalKeberangkatan;
@@ -1028,7 +1044,7 @@ class ItineraryController extends Controller
                             $dest['lat'],
                             $dest['lng']
                         );
-                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal, $jenisJalur);
                     }
                 } elseif ($index === 0 && $hari > 1) {
                     // Destinasi pertama hari berikutnya: hitung dari destinasi terakhir hari sebelumnya
@@ -1039,12 +1055,12 @@ class ItineraryController extends Controller
                             $dest['lat'],
                             $dest['lng']
                         );
-                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                        $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal, $jenisJalur);
                     }
                 } else {
                     // Destinasi setelah destinasi pertama: gunakan distance dari optimizeRoute
                     $jarak = $dest['distance'] ?? 0;
-                    $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal);
+                    $waktuTempuh = $this->hitungWaktuTempuhMenit($jarak, $tanggal, $jenisJalur);
                 }
                 
                 // Waktu mulai = waktu selesai destinasi sebelumnya + waktu tempuh
@@ -1106,14 +1122,36 @@ class ItineraryController extends Controller
     }
 
     /**
-     * Hitung waktu tempuh dalam menit berdasarkan jarak dan tanggal
+     * Hitung waktu tempuh dalam menit berdasarkan jarak, tanggal, dan jenis jalur
+     * 
+     * Logika kecepatan:
+     * - High season + tol: 130 km/jam (lebih cepat dari high season non tol)
+     * - High season + non tol: 100 km/jam (lebih lambat)
+     * - Low season + tol: 150 km/jam (paling cepat)
+     * - Low season + non tol: 120 km/jam (lebih cepat dari high season, tapi tidak lebih cepat dari low season tol)
      */
-    private function hitungWaktuTempuhMenit($jarakKm, $tanggal)
+    private function hitungWaktuTempuhMenit($jarakKm, $tanggal, $jenisJalur = 'tol')
     {
         if ($jarakKm <= 0) return 0;
         
         $isHighSeason = $this->isHighSeason($tanggal);
-        $kecepatan = $isHighSeason ? 120 : 140; // km/jam
+        
+        // Tentukan kecepatan berdasarkan kombinasi season dan jenis jalur
+        if ($isHighSeason) {
+            // High season
+            if ($jenisJalur === 'tol') {
+                $kecepatan = 130; // km/jam - lebih cepat karena tol
+            } else {
+                $kecepatan = 100; // km/jam - lebih lambat karena non tol
+            }
+        } else {
+            // Low season
+            if ($jenisJalur === 'tol') {
+                $kecepatan = 150; // km/jam - paling cepat
+            } else {
+                $kecepatan = 120; // km/jam - lebih cepat dari high season, tapi tidak lebih cepat dari low season tol
+            }
+        }
         
         return ceil(($jarakKm / $kecepatan) * 60);
     }

@@ -277,6 +277,17 @@ function initializeForm() {
             loadDestinasiList();
         });
     }
+    
+    // Jenis jalur - update tanggal info ketika berubah
+    const jenisJalurSelect = document.getElementById('jenisJalur');
+    if (jenisJalurSelect) {
+        jenisJalurSelect.addEventListener('change', function() {
+            // Update tanggal info untuk menampilkan kecepatan baru
+            if (tanggalInput && tanggalInput.value) {
+                updateTanggalInfo();
+            }
+        });
+    }
 }
 
 // Setup event listeners
@@ -404,11 +415,19 @@ function updateTanggalInfo() {
     }
     
     const tanggal = tanggalInput.value;
+    const jenisJalurSelect = document.getElementById('jenisJalur');
+    const jenisJalur = jenisJalurSelect ? jenisJalurSelect.value : 'tol';
+    
     const route = document.querySelector('meta[name="holiday-info-route"]')?.content || 
                   '/wisatawan/api/holiday-info';
     
-    // AJAX request ke backend
-    fetch(`${route}?tanggal=${tanggal}`, {
+    // AJAX request ke backend dengan jenis_jalur
+    const params = new URLSearchParams({
+        tanggal: tanggal,
+        jenis_jalur: jenisJalur || 'tol'
+    });
+    
+    fetch(`${route}?${params.toString()}`, {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
@@ -420,8 +439,10 @@ function updateTanggalInfo() {
             infoText.textContent = data.tanggal_formatted;
         }
         if (infoDetail) {
+            const jenisJalurText = data.jenis_jalur === 'tol' ? 'Tol' : 'Non Tol';
             infoDetail.innerHTML = `
                 <strong>${data.is_high_season ? 'High Season' : 'Low Season'}</strong> - ${data.jenis_hari}<br>
+                Jalur: <strong>${jenisJalurText}</strong><br>
                 Kecepatan rata-rata: <strong>${data.kecepatan} km/jam</strong>
             `;
         }

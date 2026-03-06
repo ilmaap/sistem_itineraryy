@@ -11,21 +11,21 @@
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="#" class="logo">
+            <a href="{{ route('landing') }}" class="logo">
                 <i class="fas fa-route"></i>
                 <span>Itinerary Wisata</span>
             </a>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="#" class="active">Beranda</a></li>
-                <li><a href="#">Paket Wisata</a></li>
+                <li><a href="{{ route('landing') }}" class="active">Beranda</a></li>
+                <li><a href="{{ route('paket.public.index') }}">Paket Wisata</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle">
                         Informasi
                         <i class="fas fa-chevron-down"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Tentang Kami</a></li>
-                        <li><a href="#">Form Permohonan</a></li>
+                        <li><a href="{{ route('tentang-kami') }}">Tentang Kami</a></li>
+                        <li><a href="{{ route('form-permohonan') }}">Form Permohonan</a></li>
                     </ul>
                 </li>
                 <li><a href="{{ route('login') }}">Masuk</a></li>
@@ -60,11 +60,11 @@
             
             <!-- Hero CTA Buttons -->
             <div class="hero-cta-buttons">
-                <a href="#" class="btn-hero-primary">
+                <a href="{{ route('form-permohonan') }}" class="btn-hero-primary">
                     <i class="fas fa-user-plus"></i>
                     Daftar Sekarang
                 </a>
-                <a href="#" class="btn-hero-secondary">
+                <a href="{{ route('paket.public.index') }}" class="btn-hero-secondary">
                     <i class="fas fa-suitcase"></i>
                     Lihat Paket
                 </a>
@@ -367,11 +367,11 @@
                     Dapatkan itinerary perjalanan terstruktur dan optimal dalam hitungan detik. Mulai rencanakan perjalanan impian Anda sekarang!
                 </p>
                 <div class="cta-buttons">
-                    <a href="#" class="btn-white">
+                    <a href="{{ route('form-permohonan') }}" class="btn-white">
                         <i class="fas fa-rocket"></i>
                         Daftar Sekarang
                     </a>
-                    <a href="#" class="btn-outline">
+                    <a href="{{ route('paket.public.index') }}" class="btn-outline">
                         <i class="fas fa-suitcase"></i>
                         Lihat Paket
                     </a>
@@ -398,8 +398,8 @@
                     <div class="footer-info-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
-                            <p>Jl. Raya Solo - Yogyakarta No. 123</p>
-                            <p>Solo, Jawa Tengah 57100</p>
+                            <p>Jl. Mayang Kembar III No.7 A, Pojok Dua, Kec. Wungu, Kab. Madiun</p>
+                            <p>Jawa Timur 63138</p>
                         </div>
                     </div>
                 </div>
@@ -417,7 +417,7 @@
                     <h4>Lokasi</h4>
                     <div class="mini-map">
                         <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.1234567890!2d110.3695!3d-7.7956!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zN8KwNDcnNDQuMiJTIDExMMKwMjInMTAuMiJF!5e0!3m2!1sid!2sid!4v1234567890123!5m2!1sid!2sid" 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3954.3387575796332!2d111.5446256748554!3d-7.646673675645312!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e79bf8849d14c97%3A0xf27b81c071acd41e!2sAZ%20TRANS%20TOUR%20%26%20TRANSPORT%20MADIUN!5e0!3m2!1sid!2sid!4v1772287773051!5m2!1sid!2sid" 
                             width="100%" 
                             height="150" 
                             style="border:0; border-radius: 8px;" 
@@ -489,18 +489,34 @@
         const dropdown = document.querySelector('.dropdown');
         
         if (dropdownToggle && dropdown) {
+            // Handle click on dropdown toggle
             dropdownToggle.addEventListener('click', function(e) {
                 if (window.innerWidth <= 767) {
                     e.preventDefault();
+                    e.stopPropagation();
                     dropdown.classList.toggle('active');
                 }
             });
 
-            // Close dropdown when clicking outside
+            // Close dropdown when clicking outside (mobile only)
             document.addEventListener('click', function(e) {
-                if (!dropdown.contains(e.target)) {
-                    dropdown.classList.remove('active');
+                if (window.innerWidth <= 767) {
+                    if (!dropdown.contains(e.target)) {
+                        dropdown.classList.remove('active');
+                    }
                 }
+            });
+
+            // Close dropdown and menu when clicking on dropdown menu links (mobile only)
+            const dropdownLinks = dropdown.querySelectorAll('.dropdown-menu a');
+            dropdownLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 767) {
+                        dropdown.classList.remove('active');
+                        navMenu.classList.remove('active');
+                        hamburger.classList.remove('active');
+                    }
+                });
             });
         }
 

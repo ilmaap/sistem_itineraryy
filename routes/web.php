@@ -4,11 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DestinasiController;
 use App\Http\Controllers\PaketController;
+use App\Http\Controllers\PaketWisatawanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LiburNasionalController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\AkomodasiController;
 use App\Http\Controllers\ItineraryController;
+use App\Http\Controllers\PermohonanAkunController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +25,20 @@ use App\Http\Controllers\ItineraryController;
 
 Route::get('/', function () {
     return view('landing');
-});
+})->name('landing');
+
+// Public Paket Wisata Routes (Landing Page)
+Route::get('/paket-wisata', [PaketWisatawanController::class, 'publicIndex'])->name('paket.public.index');
+Route::get('/paket-wisata/{id}', [PaketWisatawanController::class, 'publicShow'])->name('paket.public.show');
+
+// Public About Us Route (Landing Page)
+Route::get('/tentang-kami', function () {
+    return view('tentang-kami');
+})->name('tentang-kami');
+
+// Public Form Permohonan Routes (Landing Page)
+Route::get('/form-permohonan', [PermohonanAkunController::class, 'create'])->name('form-permohonan');
+Route::post('/form-permohonan', [PermohonanAkunController::class, 'store'])->name('form-permohonan.store');
 
 // Login Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -86,6 +101,10 @@ Route::middleware('auth')->group(function () {
         
         // Store itinerary
         Route::post('/itinerary', [ItineraryController::class, 'store'])->name('itinerary.store');
+        
+        // Paket Wisata Routes
+        Route::get('/paket', [PaketWisatawanController::class, 'index'])->name('paket.index');
+        Route::get('/paket/{id}', [PaketWisatawanController::class, 'show'])->name('paket.show');
     });
 
 });

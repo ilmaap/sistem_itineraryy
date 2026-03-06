@@ -8,7 +8,7 @@
         <ul class="nav-menu" id="navMenu">
             <li><a href="{{ route('wisatawan.dashboard') }}">Beranda</a></li>
             <li><a href="{{ route('wisatawan.itinerary.create') }}">Buat Itinerary</a></li>
-            <li><a href="#">Paket Wisata</a></li>
+            <li><a href="{{ route('wisatawan.paket.index') }}">Paket Wisata</a></li>
             <li><a href="{{ route('wisatawan.itinerary.index') }}">Riwayat</a></li>
             <!-- <li><a href="#">Kelola Hari Libur</a></li> -->
             <li>
