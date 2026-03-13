@@ -14,7 +14,16 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $currentUser = auth()->user();
         $query = User::query();
+
+        // Filter berdasarkan role user yang login
+        // Admin hanya bisa melihat wisatawan
+        // Super Admin bisa melihat semua
+        if ($currentUser->role === 'admin') {
+            $query->where('role', 'wisatawan');
+        }
+        // Super admin bisa melihat semua, tidak perlu filter
 
         // Search functionality
         if ($request->has('search') && $request->search != '') {
@@ -43,18 +52,60 @@ class UserController extends Controller
     {
         return view('admin.kelola_user');
     }
+    
+    /**
+     * Cek apakah user bisa mengelola user tertentu berdasarkan role
+     */
+    private function canManageUser($targetUser)
+    {
+        $currentUser = auth()->user();
+        
+        // Super admin bisa mengelola semua
+        if ($currentUser->role === 'super_admin') {
+            return true;
+        }
+        
+        // Admin hanya bisa mengelola wisatawan
+        if ($currentUser->role === 'admin') {
+            return $targetUser->role === 'wisatawan';
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Validasi role yang bisa dibuat/diupdate berdasarkan user yang login
+     */
+    private function getAllowedRoles()
+    {
+        $currentUser = auth()->user();
+        
+        // Super admin bisa membuat semua role
+        if ($currentUser->role === 'super_admin') {
+            return ['wisatawan', 'admin', 'super_admin'];
+        }
+        
+        // Admin hanya bisa membuat wisatawan
+        if ($currentUser->role === 'admin') {
+            return ['wisatawan'];
+        }
+        
+        return [];
+    }
 
     /**
      * Menyimpan user baru
      */
     public function store(Request $request)
     {
+        $allowedRoles = $this->getAllowedRoles();
+        
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:user,email|max:255',
             'no_telp' => 'nullable|string|max:20',
             'password' => 'required|string|min:6',
-            'role' => 'required|in:admin,wisatawan',
+            'role' => 'required|in:' . implode(',', $allowedRoles),
         ], [
             'nama.required' => 'Nama wajib diisi.',
             'email.required' => 'Email wajib diisi.',
@@ -63,7 +114,7 @@ class UserController extends Controller
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 6 karakter.',
             'role.required' => 'Role wajib dipilih.',
-            'role.in' => 'Role tidak valid.',
+            'role.in' => 'Role yang dipilih tidak diizinkan untuk akun Anda.',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -80,6 +131,13 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
+        
+        // Cek apakah user yang login bisa mengelola user ini
+        if (!$this->canManageUser($user)) {
+            return redirect()->route('admin.user.index')
+                ->with('error', 'Anda tidak memiliki izin untuk mengelola pengguna ini.');
+        }
+        
         return view('admin.kelola_user', ['user' => $user]);
     }
 
@@ -89,13 +147,21 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        
+        // Cek apakah user yang login bisa mengelola user ini
+        if (!$this->canManageUser($user)) {
+            return redirect()->route('admin.user.index')
+                ->with('error', 'Anda tidak memiliki izin untuk mengelola pengguna ini.');
+        }
+        
+        $allowedRoles = $this->getAllowedRoles();
 
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:user,email,' . $id . '|max:255',
             'no_telp' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:6',
-            'role' => 'required|in:admin,wisatawan',
+            'role' => 'required|in:' . implode(',', $allowedRoles),
         ], [
             'nama.required' => 'Nama wajib diisi.',
             'email.required' => 'Email wajib diisi.',
@@ -103,7 +169,7 @@ class UserController extends Controller
             'email.unique' => 'Email sudah terdaftar.',
             'password.min' => 'Password minimal 6 karakter.',
             'role.required' => 'Role wajib dipilih.',
-            'role.in' => 'Role tidak valid.',
+            'role.in' => 'Role yang dipilih tidak diizinkan untuk akun Anda.',
         ]);
 
         // Jika password diisi, hash password baru
@@ -130,6 +196,12 @@ class UserController extends Controller
         if ($user->id === auth()->id()) {
             return redirect()->route('admin.user.index')
                 ->with('error', 'Tidak dapat menghapus akun yang sedang digunakan.');
+        }
+        
+        // Cek apakah user yang login bisa mengelola user ini
+        if (!$this->canManageUser($user)) {
+            return redirect()->route('admin.user.index')
+                ->with('error', 'Anda tidak memiliki izin untuk menghapus pengguna ini.');
         }
 
         $user->delete();

@@ -61,26 +61,27 @@
             </div>
             <select id="lokasiPopuler" name="lokasi_populer" class="form-select" {{ $isPopularDisabled ? 'disabled' : '' }}>
                 <option value="">-- Pilih Lokasi Populer --</option>
-                <optgroup label="Hotel & Penginapan">
-                    @foreach($lokasiPopuler['hotel'] ?? [] as $lokasi)
-                        <option value="{{ $lokasi['value'] }}" {{ $lokasiPopulerSelected == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
-                    @endforeach
-                </optgroup>
-                <optgroup label="Landmark & Titik Kumpul">
-                    @foreach($lokasiPopuler['landmark'] ?? [] as $lokasi)
-                        <option value="{{ $lokasi['value'] }}" {{ $lokasiPopulerSelected == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
-                    @endforeach
-                </optgroup>
-                <optgroup label="Destinasi Wisata Populer">
-                    @foreach($lokasiPopuler['wisata'] ?? [] as $lokasi)
-                        <option value="{{ $lokasi['value'] }}" {{ $lokasiPopulerSelected == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
-                    @endforeach
-                </optgroup>
-                <optgroup label="Mall & Pusat Perbelanjaan">
-                    @foreach($lokasiPopuler['mall'] ?? [] as $lokasi)
-                        <option value="{{ $lokasi['value'] }}" {{ $lokasiPopulerSelected == $lokasi['value'] ? 'selected' : '' }}>{{ $lokasi['nama'] }}</option>
-                    @endforeach
-                </optgroup>
+                @php
+                    $labels = [
+                        'yogyakarta' => 'Yogyakarta',
+                        'solo' => 'Solo',
+                    ];
+                @endphp
+
+                @foreach(($titikKumpul ?? collect())->sortKeys() as $kategoriKey => $items)
+                    <optgroup label="{{ $labels[$kategoriKey] ?? ucfirst($kategoriKey) }}">
+                        @foreach($items as $lokasi)
+                            <option value="{{ (string) $lokasi->id }}"
+                                    data-nama="{{ $lokasi->nama }}"
+                                    data-alamat="{{ $lokasi->alamat }}"
+                                    data-lat="{{ $lokasi->latitude }}"
+                                    data-lng="{{ $lokasi->longitude }}"
+                                    {{ (string) $lokasiPopulerSelected === (string) $lokasi->id ? 'selected' : '' }}>
+                                {{ $lokasi->nama }}
+                            </option>
+                        @endforeach
+                    </optgroup>
+                @endforeach
             </select>
             <small>
                 <i class="fas fa-info-circle"></i> Pilih lokasi populer dari database sistem

@@ -79,7 +79,11 @@
                                     <td>{{ $item->email }}</td>
                                     <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d M Y') }}</td>
                                     <td>
-                                        @if($item->role == 'admin')
+                                        @if($item->role == 'super_admin')
+                                            <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem;">
+                                                Super Admin
+                                            </span>
+                                        @elseif($item->role == 'admin')
                                             <span style="background: #e0e7ff; color: #4338ca; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem;">
                                                 Admin
                                             </span>
@@ -90,20 +94,38 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div class="action-buttons">
-                                            <a href="{{ route('admin.user.edit', $item->id) }}" class="btn-edit" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                                <!-- Edit -->
-                                            </a>
-                                            <form action="{{ route('admin.user.destroy', $item->id) }}" method="POST" class="delete-form" style="display: inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-delete" title="Hapus" onclick="return confirmDelete(event)">
-                                                    <i class="fas fa-trash"></i>
-                                                    <!-- Hapus -->
-                                                </button>
-                                            </form>
-                                        </div>
+                                        @php
+                                            $currentUser = auth()->user();
+                                            $canManage = false;
+                                            
+                                            // Super admin bisa mengelola semua
+                                            if ($currentUser->role === 'super_admin') {
+                                                $canManage = true;
+                                            }
+                                            // Admin hanya bisa mengelola wisatawan
+                                            elseif ($currentUser->role === 'admin' && $item->role === 'wisatawan') {
+                                                $canManage = true;
+                                            }
+                                        @endphp
+                                        
+                                        @if($canManage)
+                                            <div class="action-buttons">
+                                                <a href="{{ route('admin.user.edit', $item->id) }}" class="btn-edit" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                    <!-- Edit -->
+                                                </a>
+                                                <form action="{{ route('admin.user.destroy', $item->id) }}" method="POST" class="delete-form" style="display: inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-delete" title="Hapus" onclick="return confirmDelete(event)">
+                                                        <i class="fas fa-trash"></i>
+                                                        <!-- Hapus -->
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @else
+                                            <span style="color: #718096; font-size: 0.875rem;">Tidak dapat diakses</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

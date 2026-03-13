@@ -28,7 +28,7 @@
                         <li><a href="{{ route('form-permohonan') }}">Form Permohonan</a></li>
                     </ul>
                 </li>
-                <li><a href="{{ route('login') }}">Masuk</a></li>
+                <li><a href="{{ route('login.wisatawan') }}">Masuk</a></li>
             </ul>
             <div class="hamburger" id="hamburger">
                 <span></span>

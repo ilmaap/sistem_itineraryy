@@ -227,11 +227,20 @@ textarea.form-control {
 .destinasi-item {
     display: flex;
     gap: 0.75rem;
-    align-items: center;
+    align-items: flex-start;
     padding: 0.75rem;
     background: #f9fafb;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
+}
+
+.destinasi-item .searchable-select-wrapper {
+    align-self: stretch;
+}
+
+.destinasi-item .btn-remove-destinasi {
+    align-self: flex-start;
+    margin-top: 1.5rem;
 }
 
 /* Searchable Select */

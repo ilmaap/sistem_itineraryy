@@ -116,8 +116,15 @@
                             </label>
                             <select id="role" name="role" class="form-control" required>
                                 <option value="">Pilih Role</option>
-                                <option value="admin" {{ old('role', $user->role ?? '') === 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="wisatawan" {{ old('role', $user->role ?? '') === 'wisatawan' ? 'selected' : '' }}>Wisatawan</option>
+                                @if(auth()->user()->role === 'super_admin')
+                                    {{-- Super Admin bisa membuat semua role --}}
+                                    <option value="admin" {{ old('role', $user->role ?? '') === 'admin' ? 'selected' : '' }}>Admin</option>
+                                    <option value="super_admin" {{ old('role', $user->role ?? '') === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                                    <option value="wisatawan" {{ old('role', $user->role ?? '') === 'wisatawan' ? 'selected' : '' }}>Wisatawan</option>
+                                @elseif(auth()->user()->role === 'admin')
+                                    {{-- Admin hanya bisa membuat wisatawan --}}
+                                    <option value="wisatawan" {{ old('role', $user->role ?? '') === 'wisatawan' ? 'selected' : '' }}>Wisatawan</option>
+                                @endif
                             </select>
                         </div>
                     </div>

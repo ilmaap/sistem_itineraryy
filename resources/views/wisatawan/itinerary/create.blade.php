@@ -16,13 +16,57 @@
     <h2>{{ isset($isEditMode) && $isEditMode ? 'Edit Itinerary' : 'Buat Itinerary Baru' }}</h2>
     
     @if(isset($isEditMode) && $isEditMode && isset($itineraryData) && isset($itineraryConfig))
+    @php
+        $jsonItineraryData = json_encode($itineraryData ?? [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $jsonItineraryConfig = json_encode($itineraryConfig ?? [], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $itineraryId = $itinerary->id ?? 0;
+        // Encode ke base64 untuk menghindari masalah escape di HTML attribute
+        $base64ItineraryData = base64_encode($jsonItineraryData);
+        $base64ItineraryConfig = base64_encode($jsonItineraryConfig);
+    @endphp
+    <div id="edit-mode-data" 
+         data-itinerary-data="{{ $base64ItineraryData }}"
+         data-itinerary-config="{{ $base64ItineraryConfig }}"
+         data-itinerary-id="{{ $itineraryId }}"
+         style="display: none;"></div>
     <script>
         // Pre-fill data untuk edit mode
-        window.editModeData = {
-            itineraryData: @json($itineraryData),
-            itineraryConfig: @json($itineraryConfig),
-            itineraryId: {{ $itinerary->id }}
-        };
+        (function() {
+            try {
+                var dataElement = document.getElementById('edit-mode-data');
+                if (dataElement) {
+                    // Decode dari base64
+                    var itineraryDataBase64 = dataElement.getAttribute('data-itinerary-data');
+                    var itineraryConfigBase64 = dataElement.getAttribute('data-itinerary-config');
+                    var itineraryId = parseInt(dataElement.getAttribute('data-itinerary-id'), 10);
+                    
+                    // Decode base64 dan parse JSON
+                    var itineraryDataStr = atob(itineraryDataBase64);
+                    var itineraryConfigStr = atob(itineraryConfigBase64);
+                    var itineraryDataJson = JSON.parse(itineraryDataStr);
+                    var itineraryConfigJson = JSON.parse(itineraryConfigStr);
+                    
+                    window.editModeData = {
+                        itineraryData: itineraryDataJson,
+                        itineraryConfig: itineraryConfigJson,
+                        itineraryId: itineraryId
+                    };
+                    
+                    console.log('Edit mode: Data berhasil di-set', {
+                        hasItineraryData: !!window.editModeData.itineraryData,
+                        hasItineraryConfig: !!window.editModeData.itineraryConfig,
+                        itineraryDataLength: Array.isArray(window.editModeData.itineraryData) ? window.editModeData.itineraryData.length : 0
+                    });
+                }
+            } catch (e) {
+                console.error('Error setting edit mode data:', e);
+                window.editModeData = {
+                    itineraryData: {},
+                    itineraryConfig: {},
+                    itineraryId: 0
+                };
+            }
+        })();
     </script>
     @endif
     

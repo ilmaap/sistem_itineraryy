@@ -40,9 +40,24 @@ Route::get('/tentang-kami', function () {
 Route::get('/form-permohonan', [PermohonanAkunController::class, 'create'])->name('form-permohonan');
 Route::post('/form-permohonan', [PermohonanAkunController::class, 'store'])->name('form-permohonan.store');
 
-// Login Routes
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+// Login Routes - Separated by Role
+// Wisatawan Login
+Route::get('/login/wisatawan', [LoginController::class, 'showWisatawanLoginForm'])->name('login.wisatawan');
+Route::post('/login/wisatawan', [LoginController::class, 'wisatawanLogin'])->name('login.wisatawan.submit');
+
+// Admin Login (untuk admin dan super admin)
+Route::get('/login/admin', [LoginController::class, 'showAdminLoginForm'])->name('login.admin');
+Route::post('/login/admin', [LoginController::class, 'adminLogin'])->name('login.admin.submit');
+
+// Super Admin Login - redirect ke admin login (sudah digabung)
+Route::get('/login/super-admin', function () {
+    return redirect()->route('login.admin');
+})->name('login.super-admin');
+
+// Legacy login route - redirect to wisatawan login
+Route::get('/login', function () {
+    return redirect()->route('login.wisatawan');
+})->name('login');
 
 // Logout Routes (bisa diakses via GET atau POST)
 Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->name('logout');
@@ -88,10 +103,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('wisatawan')->name('wisatawan.')->group(function () {
         Route::get('/itinerary', [ItineraryController::class, 'index'])->name('itinerary.index');
         Route::get('/itinerary/create', [ItineraryController::class, 'create'])->name('itinerary.create');
-        Route::get('/itinerary/{id}', [ItineraryController::class, 'show'])->name('itinerary.show');
-        Route::get('/itinerary/{id}/edit', [ItineraryController::class, 'edit'])->name('itinerary.edit');
         
-        // AJAX Endpoints
+        // AJAX Endpoints - HARUS SEBELUM route dengan parameter {id}
         Route::get('/itinerary/destinations', [ItineraryController::class, 'getDestinations'])->name('itinerary.destinations');
         Route::post('/itinerary/generate', [ItineraryController::class, 'generate'])->name('itinerary.generate');
         Route::post('/itinerary/reoptimize', [ItineraryController::class, 'reoptimize'])->name('itinerary.reoptimize');
@@ -101,6 +114,11 @@ Route::middleware('auth')->group(function () {
         
         // Store itinerary
         Route::post('/itinerary', [ItineraryController::class, 'store'])->name('itinerary.store');
+        
+        // Routes dengan parameter {id} - HARUS SETELAH route spesifik
+        Route::get('/itinerary/{id}', [ItineraryController::class, 'show'])->name('itinerary.show');
+        Route::get('/itinerary/{id}/edit', [ItineraryController::class, 'edit'])->name('itinerary.edit');
+        Route::delete('/itinerary/{id}', [ItineraryController::class, 'destroy'])->name('itinerary.destroy');
         
         // Paket Wisata Routes
         Route::get('/paket', [PaketWisatawanController::class, 'index'])->name('paket.index');

@@ -73,6 +73,8 @@ class PaketController extends Controller
         // Urutan sebenarnya mengikuti index array (urutan input)
         if ($request->has('destinasi') && is_array($request->destinasi)) {
             $destinasiData = [];
+            $destinasiPerHari = []; // Untuk menghitung jumlah destinasi per hari
+            
             foreach ($request->destinasi as $index => $destinasiId) {
                 if (!empty($destinasiId)) {
                     // Hari disimpan di kolom 'order' (tanpa menambah kolom baru)
@@ -81,6 +83,20 @@ class PaketController extends Controller
                     if ($hari > $paket->durasi) {
                         $hari = $paket->durasi;
                     }
+                    
+                    // Hitung jumlah destinasi per hari
+                    if (!isset($destinasiPerHari[$hari])) {
+                        $destinasiPerHari[$hari] = 0;
+                    }
+                    $destinasiPerHari[$hari]++;
+                    
+                    // Validasi: maksimal 4 destinasi per hari
+                    if ($destinasiPerHari[$hari] > 4) {
+                        return redirect()->back()
+                            ->withErrors(['destinasi' => "Hari ke-{$hari} sudah memiliki 4 destinasi. Maksimal 4 destinasi per hari."])
+                            ->withInput();
+                    }
+                    
                     // Urutan sebenarnya mengikuti index (urutan input)
                     $destinasiData[$destinasiId] = ['order' => $hari];
                 }
@@ -142,6 +158,31 @@ class PaketController extends Controller
 
         // Update relasi destinasi
         if ($request->has('destinasi') && is_array($request->destinasi)) {
+            // Validasi: maksimal 4 destinasi per hari
+            $destinasiPerHari = [];
+            foreach ($request->destinasi as $index => $destinasiId) {
+                if (!empty($destinasiId)) {
+                    $hari = isset($request->hari[$index]) && $request->hari[$index] !== '' ? (int)$request->hari[$index] : 1;
+                    // Validasi hari tidak melebihi durasi paket
+                    if ($hari > $paket->durasi) {
+                        $hari = $paket->durasi;
+                    }
+                    
+                    // Hitung jumlah destinasi per hari
+                    if (!isset($destinasiPerHari[$hari])) {
+                        $destinasiPerHari[$hari] = 0;
+                    }
+                    $destinasiPerHari[$hari]++;
+                    
+                    // Validasi: maksimal 4 destinasi per hari
+                    if ($destinasiPerHari[$hari] > 4) {
+                        return redirect()->back()
+                            ->withErrors(['destinasi' => "Hari ke-{$hari} sudah memiliki 4 destinasi. Maksimal 4 destinasi per hari."])
+                            ->withInput();
+                    }
+                }
+            }
+            
             // Hapus semua relasi lama
             $paket->destinasi()->detach();
             

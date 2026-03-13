@@ -20,7 +20,7 @@
     @if($itineraries->count() > 0)
         <div class="itinerary-grid">
             @foreach($itineraries as $itinerary)
-                <div class="itinerary-card">
+                <div class="itinerary-card" style="display: flex; flex-direction: column; overflow: hidden;">
                     <div class="itinerary-card-header">
                         <h3>{{ $itinerary->nama }}</h3>
                         <span class="itinerary-badge itinerary-badge-{{ strtolower($itinerary->lokasi) }}">
@@ -69,13 +69,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="itinerary-card-footer">
-                        <a href="{{ route('wisatawan.itinerary.show', $itinerary->id) }}" class="btn btn-primary">
-                            <i class="fas fa-eye"></i> Lihat Detail
+                    <div class="itinerary-card-footer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: auto; padding-top: 1rem; border-top: 1px solid #e2e8f0;">
+                        <a href="{{ route('wisatawan.itinerary.show', $itinerary->id) }}" class="btn btn-primary" style="width: 100%; box-sizing: border-box; padding: 0.5rem 0.75rem; font-size: 0.875rem; min-height: 38px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <i class="fas fa-eye"></i> <span>Detail</span>
                         </a>
-                        <a href="{{ route('wisatawan.itinerary.edit', $itinerary->id) }}" class="btn btn-outline">
-                            <i class="fas fa-edit"></i> Edit
+                        <a href="{{ route('wisatawan.itinerary.edit', $itinerary->id) }}" class="btn btn-outline" style="width: 100%; box-sizing: border-box; padding: 0.5rem 0.75rem; font-size: 0.875rem; min-height: 38px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <i class="fas fa-edit"></i> <span>Edit</span>
                         </a>
+                        <form action="{{ route('wisatawan.itinerary.destroy', $itinerary->id) }}" method="POST" 
+                              style="display: block; margin: 0; width: 100%; box-sizing: border-box;" 
+                              onsubmit="return confirm('Hapus itinerary: {{ addslashes($itinerary->nama) }}?\n\nTindakan ini tidak dapat dibatalkan.');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger" style="width: 100%; box-sizing: border-box; margin: 0; padding: 0.5rem 0.75rem; font-size: 0.875rem; min-height: 38px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <i class="fas fa-trash"></i> <span>Hapus</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             @endforeach

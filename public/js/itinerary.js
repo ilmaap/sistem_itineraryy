@@ -4,112 +4,25 @@ let currentLocationData = null;
 let selectedDestinasiIds = [];
 let currentPage = 1;
 let searchTimeout = null;
+// Store selected restaurant and akomodasi per day
+let selectedRestaurants = {}; // { hari: [restaurant_id, ...] }
+let selectedAkomodasi = {}; // { hari: [akomodasi_id, ...] }
 
-// Data lokasi populer dummy (sama dengan backend)
-const lokasiPopulerData = {
-    'hotel-grand-mercure-yogyakarta': {
-        name: 'Hotel Grand Mercure Yogyakarta',
-        address: 'Jl. Jend. Sudirman No.9, Yogyakarta',
-        lat: -7.7833,
-        lng: 110.3690
-    },
-    'hotel-phoenix-yogyakarta': {
-        name: 'Hotel Phoenix Yogyakarta',
-        address: 'Jl. Jend. Sudirman No.9, Yogyakarta',
-        lat: -7.7829,
-        lng: 110.3687
-    },
-    'hotel-santika-premier-yogyakarta': {
-        name: 'Hotel Santika Premier Yogyakarta',
-        address: 'Jl. Jend. Sudirman No.2, Yogyakarta',
-        lat: -7.7850,
-        lng: 110.3710
-    },
-    'hotel-solo': {
-        name: 'Hotel Solo',
-        address: 'Jl. Slamet Riyadi No.324, Solo',
-        lat: -7.5667,
-        lng: 110.8167
-    },
-    'hotel-kusuma-sahid-solo': {
-        name: 'Hotel Kusuma Sahid Solo',
-        address: 'Jl. Sugiyopranoto No.20, Solo',
-        lat: -7.5633,
-        lng: 110.8217
-    },
-    'malioboro': {
-        name: 'Malioboro',
-        address: 'Jl. Malioboro, Yogyakarta',
-        lat: -7.7956,
-        lng: 110.3694
-    },
-    'stasiun-tugu-yogyakarta': {
-        name: 'Stasiun Tugu Yogyakarta',
-        address: 'Jl. Mangkubumi No.1, Yogyakarta',
-        lat: -7.7894,
-        lng: 110.3633
-    },
-    'bandara-adisucipto': {
-        name: 'Bandara Adisucipto Yogyakarta',
-        address: 'Jl. Solo, Maguwoharjo, Yogyakarta',
-        lat: -7.7882,
-        lng: 110.4319
-    },
-    'stasiun-purwosari-solo': {
-        name: 'Stasiun Purwosari Solo',
-        address: 'Jl. Slamet Riyadi, Solo',
-        lat: -7.5717,
-        lng: 110.8017
-    },
-    'bandara-adisumarmo-solo': {
-        name: 'Bandara Adisumarmo Solo',
-        address: 'Jl. Raya Solo - Yogyakarta, Solo',
-        lat: -7.5161,
-        lng: 110.7572
-    },
-    'keraton-yogyakarta': {
-        name: 'Keraton Yogyakarta',
-        address: 'Jl. Rotowijayan, Yogyakarta',
-        lat: -7.8052,
-        lng: 110.3647
-    },
-    'candi-prambanan': {
-        name: 'Candi Prambanan',
-        address: 'Jl. Raya Solo - Yogyakarta, Prambanan',
-        lat: -7.7520,
-        lng: 110.4915
-    },
-    'keraton-solo': {
-        name: 'Keraton Solo',
-        address: 'Jl. Slamet Riyadi, Solo',
-        lat: -7.5747,
-        lng: 110.8247
-    },
-    'taman-sari': {
-        name: 'Taman Sari Yogyakarta',
-        address: 'Jl. Taman, Yogyakarta',
-        lat: -7.8100,
-        lng: 110.3589
-    },
-    'malioboro-mall': {
-        name: 'Malioboro Mall',
-        address: 'Jl. Malioboro No.52-58, Yogyakarta',
-        lat: -7.7931,
-        lng: 110.3647
-    },
-    'plaza-ambarrukmo': {
-        name: 'Plaza Ambarrukmo',
-        address: 'Jl. Laksda Adisucipto No.81, Yogyakarta',
-        lat: -7.7831,
-        lng: 110.4075
-    },
-    'solo-grand-mall': {
-        name: 'Solo Grand Mall',
-        address: 'Jl. Slamet Riyadi, Solo',
-        lat: -7.5661,
-        lng: 110.8189
-    }
-};
+// Data lokasi populer sekarang diambil dari database (tabel titik_kumpul) dan di-embed di <option data-*>
+function getPopularLocationFromSelect(selectEl) {
+    if (!selectEl) return null;
+    const option = selectEl.options?.[selectEl.selectedIndex];
+    if (!option || !option.value) return null;
+
+    const lat = parseFloat(option.dataset.lat);
+    const lng = parseFloat(option.dataset.lng);
+    const name = option.dataset.nama || option.textContent?.trim() || '';
+    const address = option.dataset.alamat || '';
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+    return { lat, lng, name, address };
+}
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -146,9 +59,10 @@ function initializeForm() {
     const usePopularLocation = document.getElementById('usePopularLocation');
     const lokasiPopuler = document.getElementById('lokasiPopuler');
     
-    // Function to handle location type change
-    function handleLocationTypeChange() {
+    // Function to handle location type change (global function)
+    window.handleLocationTypeChange = function() {
         const lokasiAwalType = document.querySelector('input[name="lokasi_awal_type"]:checked');
+        const lokasiPopuler = document.getElementById('lokasiPopuler');
         
         if (lokasiAwalType) {
             if (lokasiAwalType.value === 'current') {
@@ -181,32 +95,31 @@ function initializeForm() {
                 currentLocationData = null;
             }
         }
-    }
+    };
     
     if (useCurrentLocation) {
-        useCurrentLocation.addEventListener('change', handleLocationTypeChange);
+        useCurrentLocation.addEventListener('change', window.handleLocationTypeChange);
         
         // Check initial state
         if (useCurrentLocation.checked) {
-            handleLocationTypeChange();
+            window.handleLocationTypeChange();
         }
     }
     
     if (usePopularLocation) {
-        usePopularLocation.addEventListener('change', handleLocationTypeChange);
+        usePopularLocation.addEventListener('change', window.handleLocationTypeChange);
         
         // Check initial state
         if (usePopularLocation.checked) {
-            handleLocationTypeChange();
+            window.handleLocationTypeChange();
         }
     }
     
     // Lokasi populer select
     if (lokasiPopuler) {
         lokasiPopuler.addEventListener('change', function() {
-            const value = this.value;
-            if (value && lokasiPopulerData[value]) {
-                const lokasi = lokasiPopulerData[value];
+            const lokasi = getPopularLocationFromSelect(this);
+            if (lokasi) {
                 const infoDiv = document.getElementById('selectedLocationInfo');
                 const nameSpan = document.getElementById('selectedLocationName');
                 const addressSpan = document.getElementById('selectedLocationAddress');
@@ -331,14 +244,58 @@ function setupEventListeners() {
             saveStep1Changes();
             saveStep2Changes();
             
+            // Validasi data sebelum submit
+            if (!window.itineraryData || !Array.isArray(window.itineraryData) || window.itineraryData.length === 0) {
+                e.preventDefault();
+                alert('Data itinerary tidak valid. Silakan kembali ke step sebelumnya.');
+                return false;
+            }
+            
+            if (!window.itineraryConfig) {
+                e.preventDefault();
+                alert('Konfigurasi itinerary tidak ditemukan. Silakan kembali ke step sebelumnya.');
+                return false;
+            }
+            
             // Update hidden fields dengan data terbaru
             const dataInput = document.getElementById('itineraryData');
             const configInput = document.getElementById('itineraryConfig');
+            
             if (dataInput && window.itineraryData) {
-                dataInput.value = JSON.stringify(window.itineraryData);
+                try {
+                    const jsonData = JSON.stringify(window.itineraryData);
+                    dataInput.value = jsonData;
+                    console.log('Data itinerary tersimpan untuk submit:', {
+                        jumlahHari: window.itineraryData.length,
+                        totalDestinasi: window.itineraryData.reduce((sum, day) => sum + (day.destinasi ? day.destinasi.length : 0), 0),
+                        dataSize: jsonData.length
+                    });
+                } catch (error) {
+                    console.error('Error stringifying itinerary data:', error);
+                    e.preventDefault();
+                    alert('Terjadi kesalahan saat menyiapkan data. Silakan coba lagi.');
+                    return false;
+                }
+            } else {
+                e.preventDefault();
+                alert('Data itinerary tidak ditemukan. Silakan kembali ke step sebelumnya.');
+                return false;
             }
+            
             if (configInput && window.itineraryConfig) {
-                configInput.value = JSON.stringify(window.itineraryConfig);
+                try {
+                    configInput.value = JSON.stringify(window.itineraryConfig);
+                    console.log('Config itinerary tersimpan untuk submit');
+                } catch (error) {
+                    console.error('Error stringifying itinerary config:', error);
+                    e.preventDefault();
+                    alert('Terjadi kesalahan saat menyiapkan konfigurasi. Silakan coba lagi.');
+                    return false;
+                }
+            } else {
+                e.preventDefault();
+                alert('Konfigurasi itinerary tidak ditemukan. Silakan kembali ke step sebelumnya.');
+                return false;
             }
         });
     }
@@ -486,23 +443,86 @@ function loadDestinasiList() {
     
     params.append('page', currentPage);
     
-    const route = document.querySelector('meta[name="destinations-route"]')?.content || 
-                  '/wisatawan/itinerary/destinations';
+    // Get route from meta tag or use default
+    const routeMeta = document.querySelector('meta[name="destinations-route"]');
+    let route = routeMeta ? routeMeta.content : '/wisatawan/itinerary/destinations';
     
-    fetch(`${route}?${params.toString()}`, {
+    // Ensure route is absolute if it starts with /, otherwise use as is
+    // If route doesn't start with /, it might be a relative path issue
+    if (route && !route.startsWith('http') && !route.startsWith('/')) {
+        route = '/' + route;
+    }
+    
+    // Build full URL
+    const url = route.includes('?') ? `${route}&${params.toString()}` : `${route}?${params.toString()}`;
+    
+    // Debug logging (can be removed in production)
+    console.log('Loading destinations from:', url);
+    
+    fetch(url, {
+        method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-        }
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
     })
-    .then(response => response.json())
+    .then(response => {
+        // Log response for debugging
+        console.log('Response status:', response.status, 'URL:', url);
+        
+        if (!response.ok) {
+            // Try to get error message from response
+            return response.text().then(text => {
+                let errorMessage = `HTTP error! status: ${response.status}`;
+                try {
+                    const jsonError = JSON.parse(text);
+                    if (jsonError.message) {
+                        errorMessage += ` - ${jsonError.message}`;
+                    }
+                } catch (e) {
+                    // If not JSON, use text as error message
+                    if (text) {
+                        errorMessage += ` - ${text.substring(0, 100)}`;
+                    }
+                }
+                throw new Error(errorMessage);
+            });
+        }
+        return response.json();
+    })
     .then(data => {
-        renderDestinasiList(data.data);
-        updatePagination(data);
-        updateResultsInfo(data);
+        // Ensure data.data is an array before rendering
+        const destinasiList = Array.isArray(data?.data) ? data.data : [];
+        renderDestinasiList(destinasiList);
+        if (data) {
+            updatePagination(data);
+            updateResultsInfo(data);
+        }
     })
     .catch(error => {
         console.error('Error loading destinations:', error);
+        console.error('Failed URL:', url);
+        
+        // Show user-friendly error message
+        const container = document.getElementById('destinasiList');
+        if (container) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #ef4444;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p><strong>Error memuat destinasi:</strong></p>
+                    <p style="font-size: 0.9rem; color: #64748b;">${error.message}</p>
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem;">
+                        Pastikan Anda sudah login dan route tersedia.
+                    </p>
+                </div>
+            `;
+        }
+        
+        // Render empty list as fallback
+        renderDestinasiList([]);
     });
 }
 
@@ -513,17 +533,29 @@ function renderDestinasiList(destinasi) {
     
     container.innerHTML = '';
     
+    // Ensure destinasi is an array
+    if (!Array.isArray(destinasi)) {
+        container.innerHTML = '<p style="text-align: center; color: #ef4444; padding: 2rem;">Error: Data destinasi tidak valid.</p>';
+        return;
+    }
+    
     if (destinasi.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">Tidak ada destinasi ditemukan.</p>';
         return;
     }
     
     destinasi.forEach(dest => {
+        // Skip if dest is invalid or missing required properties
+        if (!dest || !dest.id) {
+            console.warn('Invalid destinasi item:', dest);
+            return;
+        }
+        
         const card = document.createElement('div');
         card.className = 'destinasi-card';
         card.style.cssText = 'border: 2px solid #e2e8f0; border-radius: 12px; padding: 1rem; background: white; transition: all 0.3s;';
         
-        const isSelected = selectedDestinasiIds.includes(dest.id);
+        const isSelected = Array.isArray(selectedDestinasiIds) && selectedDestinasiIds.includes(dest.id);
         if (isSelected) {
             card.style.borderColor = '#14b8a6';
             card.style.background = '#f0f9ff';
@@ -751,8 +783,8 @@ function generateItinerary() {
     } else {
         // Use popular location
         const lokasiPopuler = document.getElementById('lokasiPopuler');
-        if (lokasiPopuler && lokasiPopuler.value && lokasiPopulerData[lokasiPopuler.value]) {
-            const lokasi = lokasiPopulerData[lokasiPopuler.value];
+        const lokasi = getPopularLocationFromSelect(lokasiPopuler);
+        if (lokasi) {
             startLat = lokasi.lat;
             startLng = lokasi.lng;
         } else {
@@ -795,10 +827,17 @@ function generateItinerary() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            renderItineraryResult(data.itinerary);
-            // Store data for step 3
-            window.itineraryData = data.itinerary;
-            window.itineraryConfig = data.config;
+            // Pastikan data tersimpan dengan benar (deep copy)
+            window.itineraryData = JSON.parse(JSON.stringify(data.itinerary));
+            window.itineraryConfig = JSON.parse(JSON.stringify(data.config));
+            
+            // Render itinerary result
+            renderItineraryResult(window.itineraryData);
+            
+            console.log('Itinerary berhasil dibuat:', {
+                jumlahHari: window.itineraryData.length,
+                totalDestinasi: window.itineraryData.reduce((sum, day) => sum + (day.destinasi ? day.destinasi.length : 0), 0)
+            });
         } else {
             alert('Gagal membuat itinerary. Silakan coba lagi.');
         }
@@ -1007,59 +1046,85 @@ function showStep(stepNumber, skipSave = false) {
     }
     
     // If step 3, populate form
-    if (stepNumber === 3 && window.itineraryData) {
+    if (stepNumber === 3) {
+        // Pastikan data terbaru tersimpan sebelum menampilkan preview
+        saveStep1Changes();
+        saveStep2Changes();
+        
         const previewDiv = document.getElementById('itineraryPreview');
-        if (previewDiv && window.itineraryData) {
+        if (previewDiv && window.itineraryData && Array.isArray(window.itineraryData)) {
             let html = '<div class="itinerary-preview">';
             window.itineraryData.forEach(day => {
                 html += `
                     <div class="day-itinerary" style="margin-bottom: 2rem; padding: 1.5rem; background: #f8fafc; border-radius: 12px;">
                         <h3 style="margin: 0 0 1rem 0; color: #0f172a; font-size: 1.3rem;">
-                            Hari ${day.hari} - ${day.tanggal_formatted}
+                            Hari ${day.hari} - ${day.tanggal_formatted || day.tanggal || ''}
                         </h3>
                         <div class="destinasi-list">
                 `;
-                day.destinasi.forEach((dest, index) => {
-                    html += `
-                        <div class="destinasi-item" style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #14b8a6;">
-                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                                <h4 style="margin: 0; color: #0f172a; font-size: 1.1rem;">${dest.nama}</h4>
-                                <span style="color: #64748b; font-size: 0.9rem;">
-                                    <i class="fas fa-star" style="color: #f59e0b;"></i> ${dest.rating}
-                                </span>
+                if (day.destinasi && Array.isArray(day.destinasi)) {
+                    day.destinasi.forEach((dest, index) => {
+                        html += `
+                            <div class="destinasi-item" style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #14b8a6;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                    <h4 style="margin: 0; color: #0f172a; font-size: 1.1rem;">${dest.nama || '-'}</h4>
+                                    <span style="color: #64748b; font-size: 0.9rem;">
+                                        <i class="fas fa-star" style="color: #f59e0b;"></i> ${dest.rating || 0}
+                                    </span>
+                                </div>
+                                <p style="margin: 0 0 0.5rem 0; color: #64748b; font-size: 0.9rem;">
+                                    <i class="fas fa-map-marker-alt"></i> ${dest.alamat || '-'}
+                                </p>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-size: 0.85rem; color: #64748b;">
+                                    <div><i class="fas fa-clock"></i> Mulai: <strong>${dest.waktu_mulai || '-'}</strong></div>
+                                    <div><i class="fas fa-clock"></i> Selesai: <strong>${dest.waktu_selesai || '-'}</strong></div>
+                                    <div><i class="fas fa-hourglass-half"></i> Durasi: <strong>${dest.durasi || 120} menit</strong></div>
+                                    ${index > 0 && dest.jarak_dari_sebelumnya ? `<div><i class="fas fa-route"></i> Jarak: <strong>${dest.jarak_dari_sebelumnya} km</strong></div>` : ''}
+                                    ${index > 0 && dest.waktu_tempuh ? `<div><i class="fas fa-car"></i> Waktu tempuh: <strong>${dest.waktu_tempuh} menit</strong></div>` : ''}
+                                </div>
                             </div>
-                            <p style="margin: 0 0 0.5rem 0; color: #64748b; font-size: 0.9rem;">
-                                <i class="fas fa-map-marker-alt"></i> ${dest.alamat}
-                            </p>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-size: 0.85rem; color: #64748b;">
-                                <div><i class="fas fa-clock"></i> Mulai: <strong>${dest.waktu_mulai}</strong></div>
-                                <div><i class="fas fa-clock"></i> Selesai: <strong>${dest.waktu_selesai}</strong></div>
-                                <div><i class="fas fa-hourglass-half"></i> Durasi: <strong>${dest.durasi} menit</strong></div>
-                                ${index > 0 ? `<div><i class="fas fa-route"></i> Jarak: <strong>${dest.jarak_dari_sebelumnya} km</strong></div>` : ''}
-                                ${index > 0 ? `<div><i class="fas fa-car"></i> Waktu tempuh: <strong>${dest.waktu_tempuh} menit</strong></div>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
+                        `;
+                    });
+                }
                 html += '</div></div>';
             });
             html += '</div>';
             previewDiv.innerHTML = html;
+        } else {
+            if (previewDiv) {
+                previewDiv.innerHTML = '<div class="error-message"><p>Data itinerary tidak ditemukan. Silakan kembali ke step sebelumnya.</p></div>';
+            }
         }
         
         // Set hidden fields - pastikan semua perubahan sudah tersimpan
         const dataInput = document.getElementById('itineraryData');
         const configInput = document.getElementById('itineraryConfig');
         
-        // Simpan perubahan terakhir sebelum set hidden fields
+        // Pastikan data terbaru tersimpan (sudah dipanggil di atas, tapi dipanggil lagi untuk memastikan)
         saveStep1Changes();
         saveStep2Changes();
         
+        // Tambahkan data restaurant dan akomodasi yang dipilih ke config
+        if (window.itineraryConfig) {
+            window.itineraryConfig.selected_restaurants = selectedRestaurants;
+            window.itineraryConfig.selected_akomodasi = selectedAkomodasi;
+        }
+        
         if (dataInput && window.itineraryData) {
-            dataInput.value = JSON.stringify(window.itineraryData);
+            try {
+                dataInput.value = JSON.stringify(window.itineraryData);
+                console.log('Data itinerary tersimpan ke hidden field:', window.itineraryData.length, 'hari');
+            } catch (e) {
+                console.error('Error stringifying itinerary data:', e);
+            }
         }
         if (configInput && window.itineraryConfig) {
-            configInput.value = JSON.stringify(window.itineraryConfig);
+            try {
+                configInput.value = JSON.stringify(window.itineraryConfig);
+                console.log('Config itinerary tersimpan ke hidden field');
+            } catch (e) {
+                console.error('Error stringifying itinerary config:', e);
+            }
         }
     }
 }
@@ -1152,6 +1217,9 @@ function simpanDestinasiBaru() {
         return;
     }
     
+    // Simpan perubahan durasi yang mungkin sudah diubah user sebelum menambah destinasi
+    saveStep2Changes();
+    
     // Collect all destinasi IDs (existing + new)
     const allDestinasiIds = [];
     const destinasiDurasi = {};
@@ -1162,6 +1230,12 @@ function simpanDestinasiBaru() {
             destinasiDurasi[dest.id] = dest.durasi || 120;
         });
     });
+    
+    // Cek apakah destinasi sudah ada (untuk menghindari duplikasi)
+    if (allDestinasiIds.includes(parseInt(destData.id))) {
+        alert('Destinasi ini sudah ada dalam itinerary');
+        return;
+    }
     
     // Add new destinasi ID
     allDestinasiIds.push(parseInt(destData.id));
@@ -1199,10 +1273,22 @@ function simpanDestinasiBaru() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // Pastikan data tersimpan dengan benar
             window.itineraryData = data.itinerary;
             window.itineraryConfig = data.config;
+            
+            // Render ulang itinerary dengan data terbaru
             renderItineraryResult(data.itinerary);
+            
+            // Reset select di modal
+            select.value = '';
+            select.innerHTML = '<option value="">-- Pilih Destinasi --</option>';
+            
+            // Tutup modal
             tutupModalTambahDestinasi();
+            
+            // Tampilkan notifikasi sukses (opsional)
+            console.log('Destinasi berhasil ditambahkan dan itinerary dioptimalkan ulang');
         } else {
             alert('Gagal mengoptimalkan ulang itinerary. Silakan coba lagi.');
         }
@@ -1271,9 +1357,16 @@ function hapusDestinasi(destId, hari) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.itineraryData = data.itinerary;
-            window.itineraryConfig = data.config;
-            renderItineraryResult(data.itinerary);
+            // Pastikan data tersimpan dengan benar (deep copy)
+            window.itineraryData = JSON.parse(JSON.stringify(data.itinerary));
+            if (data.config) {
+                window.itineraryConfig = JSON.parse(JSON.stringify(data.config));
+            }
+            
+            // Render ulang itinerary dengan data terbaru
+            renderItineraryResult(window.itineraryData);
+            
+            console.log('Destinasi dihapus, itinerary dioptimalkan ulang');
         } else {
             alert('Gagal mengoptimalkan ulang itinerary. Silakan coba lagi.');
         }
@@ -1347,27 +1440,40 @@ function ubahDurasiDestinasi(destId, hari, durasiMenit) {
         if (data.success) {
             // Simpan durasi yang sudah diubah sebelum update dari API
             const durasiMap = {};
-            window.itineraryData.forEach(day => {
-                day.destinasi.forEach(dest => {
-                    durasiMap[dest.id] = dest.durasi;
-                });
-            });
-            
-            // Update dari API response
-            window.itineraryData = data.itinerary;
-            window.itineraryConfig = data.config;
-            
-            // Restore durasi yang sudah diubah user (jika ada)
-            window.itineraryData.forEach(day => {
-                day.destinasi.forEach(dest => {
-                    if (durasiMap[dest.id] && durasiMap[dest.id] !== dest.durasi) {
-                        // Jika user sudah mengubah durasi, gunakan durasi dari user
-                        dest.durasi = durasiMap[dest.id];
+            if (window.itineraryData) {
+                window.itineraryData.forEach(day => {
+                    if (day.destinasi && Array.isArray(day.destinasi)) {
+                        day.destinasi.forEach(dest => {
+                            durasiMap[dest.id] = dest.durasi;
+                        });
                     }
                 });
-            });
+            }
             
+            // Update dari API response (deep copy)
+            window.itineraryData = JSON.parse(JSON.stringify(data.itinerary));
+            if (data.config) {
+                window.itineraryConfig = JSON.parse(JSON.stringify(data.config));
+            }
+            
+            // Restore durasi yang sudah diubah user (jika ada)
+            if (window.itineraryData) {
+                window.itineraryData.forEach(day => {
+                    if (day.destinasi && Array.isArray(day.destinasi)) {
+                        day.destinasi.forEach(dest => {
+                            if (durasiMap[dest.id] && durasiMap[dest.id] !== dest.durasi) {
+                                // Jika user sudah mengubah durasi, gunakan durasi dari user
+                                dest.durasi = durasiMap[dest.id];
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Render ulang itinerary dengan data terbaru
             renderItineraryResult(window.itineraryData);
+            
+            console.log('Durasi destinasi diubah, jadwal dihitung ulang');
         } else {
             alert('Gagal menghitung ulang jadwal. Silakan coba lagi.');
         }
@@ -1434,8 +1540,9 @@ function lihatRekomendasiMakanan(hari) {
             let html = `<div class="recommendation-header"><p>Rekomendasi untuk <strong>Hari ${hari}</strong></p></div>`;
             
             data.data.forEach((restaurant, index) => {
+                const isSelected = selectedRestaurants[hari] && selectedRestaurants[hari].includes(restaurant.id);
                 html += `
-                    <div class="recommendation-item">
+                    <div class="recommendation-item ${isSelected ? 'selected' : ''}" data-restaurant-id="${restaurant.id}" data-hari="${hari}">
                         <div class="recommendation-number">${index + 1}</div>
                         <div class="recommendation-content">
                             <h5>${restaurant.nama}</h5>
@@ -1456,6 +1563,13 @@ function lihatRekomendasiMakanan(hari) {
                                 ` : ''}
                             </div>
                             ${restaurant.deskripsi ? `<p class="recommendation-desc">${restaurant.deskripsi}</p>` : ''}
+                        </div>
+                        <div class="recommendation-action">
+                            <button type="button" class="btn-select-recommendation ${isSelected ? 'selected' : ''}" 
+                                    onclick="toggleRestaurantSelection(${hari}, ${restaurant.id}, ${restaurant.jarak || 0})">
+                                <i class="fas ${isSelected ? 'fa-check-circle' : 'fa-plus-circle'}"></i>
+                                ${isSelected ? 'Dipilih' : 'Pilih'}
+                            </button>
                         </div>
                     </div>
                 `;
@@ -1537,8 +1651,9 @@ function lihatRekomendasiAkomodasi(hari) {
             let html = `<div class="recommendation-header"><p>Rekomendasi untuk <strong>Hari ${hari}</strong></p></div>`;
             
             data.data.forEach((akomodasi, index) => {
+                const isSelected = selectedAkomodasi[hari] && selectedAkomodasi[hari].includes(akomodasi.id);
                 html += `
-                    <div class="recommendation-item">
+                    <div class="recommendation-item ${isSelected ? 'selected' : ''}" data-akomodasi-id="${akomodasi.id}" data-hari="${hari}">
                         <div class="recommendation-number">${index + 1}</div>
                         <div class="recommendation-content">
                             <h5>${akomodasi.nama}</h5>
@@ -1559,6 +1674,13 @@ function lihatRekomendasiAkomodasi(hari) {
                                 ` : ''}
                             </div>
                             ${akomodasi.deskripsi ? `<p class="recommendation-desc">${akomodasi.deskripsi}</p>` : ''}
+                        </div>
+                        <div class="recommendation-action">
+                            <button type="button" class="btn-select-recommendation ${isSelected ? 'selected' : ''}" 
+                                    onclick="toggleAkomodasiSelection(${hari}, ${akomodasi.id}, ${akomodasi.jarak || 0})">
+                                <i class="fas ${isSelected ? 'fa-check-circle' : 'fa-plus-circle'}"></i>
+                                ${isSelected ? 'Dipilih' : 'Pilih'}
+                            </button>
                         </div>
                     </div>
                 `;
@@ -1581,6 +1703,62 @@ function tutupModalRekomendasiAkomodasi() {
     const modal = document.getElementById('modalRekomendasiAkomodasi');
     if (modal) {
         modal.classList.add('hidden');
+    }
+}
+
+// Toggle restaurant selection
+function toggleRestaurantSelection(hari, restaurantId, jarak) {
+    if (!selectedRestaurants[hari]) {
+        selectedRestaurants[hari] = [];
+    }
+    
+    const index = selectedRestaurants[hari].indexOf(restaurantId);
+    if (index > -1) {
+        // Unselect
+        selectedRestaurants[hari].splice(index, 1);
+    } else {
+        // Select
+        selectedRestaurants[hari].push(restaurantId);
+    }
+    
+    // Update UI
+    const item = document.querySelector(`[data-restaurant-id="${restaurantId}"][data-hari="${hari}"]`);
+    if (item) {
+        const isSelected = selectedRestaurants[hari].includes(restaurantId);
+        item.classList.toggle('selected', isSelected);
+        const btn = item.querySelector('.btn-select-recommendation');
+        if (btn) {
+            btn.classList.toggle('selected', isSelected);
+            btn.innerHTML = `<i class="fas ${isSelected ? 'fa-check-circle' : 'fa-plus-circle'}"></i> ${isSelected ? 'Dipilih' : 'Pilih'}`;
+        }
+    }
+}
+
+// Toggle akomodasi selection
+function toggleAkomodasiSelection(hari, akomodasiId, jarak) {
+    if (!selectedAkomodasi[hari]) {
+        selectedAkomodasi[hari] = [];
+    }
+    
+    const index = selectedAkomodasi[hari].indexOf(akomodasiId);
+    if (index > -1) {
+        // Unselect
+        selectedAkomodasi[hari].splice(index, 1);
+    } else {
+        // Select
+        selectedAkomodasi[hari].push(akomodasiId);
+    }
+    
+    // Update UI
+    const item = document.querySelector(`[data-akomodasi-id="${akomodasiId}"][data-hari="${hari}"]`);
+    if (item) {
+        const isSelected = selectedAkomodasi[hari].includes(akomodasiId);
+        item.classList.toggle('selected', isSelected);
+        const btn = item.querySelector('.btn-select-recommendation');
+        if (btn) {
+            btn.classList.toggle('selected', isSelected);
+            btn.innerHTML = `<i class="fas ${isSelected ? 'fa-check-circle' : 'fa-plus-circle'}"></i> ${isSelected ? 'Dipilih' : 'Pilih'}`;
+        }
     }
 }
 
@@ -1619,7 +1797,7 @@ function saveStep1Changes() {
         window.itineraryConfig.start_lat = currentLocationData.lat;
         window.itineraryConfig.start_lng = currentLocationData.lng;
     } else if (usePopularLocation && usePopularLocation.checked && lokasiPopulerSelect && lokasiPopulerSelect.value) {
-        const lokasi = lokasiPopulerData[lokasiPopulerSelect.value];
+        const lokasi = getPopularLocationFromSelect(lokasiPopulerSelect);
         if (lokasi) {
             window.itineraryConfig.start_lat = lokasi.lat;
             window.itineraryConfig.start_lng = lokasi.lng;
@@ -1775,9 +1953,32 @@ function formatWaktuTempuh(menit) {
 }
 
 // Pre-fill data untuk edit mode
-if (window.editModeData) {
-    document.addEventListener('DOMContentLoaded', function() {
-        const editData = window.editModeData;
+// Tunggu DOM ready dan pastikan data tersedia
+function initializeEditMode() {
+    // Cek apakah editModeData tersedia
+    if (!window.editModeData) {
+        console.log('Edit mode: window.editModeData tidak ditemukan, mode create normal');
+        return;
+    }
+    
+    const editData = window.editModeData;
+        
+        // Langsung hide step 1 dan prepare untuk step 2
+        // Ini dilakukan lebih awal agar tidak terlihat flash step 1
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        if (step1) step1.classList.remove('active');
+        if (step2) step2.classList.remove('active');
+        
+        // Update step indicators awal untuk edit mode
+        // Step 1: completed, Step 2: akan jadi active setelah data dimuat
+        document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+            indicator.classList.remove('active', 'completed');
+            if (index === 0) {
+                // Step 1: completed
+                indicator.classList.add('completed');
+            }
+        });
         
         // Pre-fill step 1 fields (hanya jika belum terisi dari server-side)
         const tanggalInput = document.getElementById('tanggalKeberangkatan');
@@ -1836,12 +2037,13 @@ if (window.editModeData) {
             // Jika sudah terisi dari server-side, hanya perlu enable/disable select dan set location data
             if (isPopularAlreadySet && lokasiPopulerSelect && lokasiPopulerSelect.value) {
                 // Lokasi populer sudah terisi dari server-side
-                handleLocationTypeChange();
+                if (window.handleLocationTypeChange) {
+                    window.handleLocationTypeChange();
+                }
                 
                 // Set location data berdasarkan value yang sudah terisi
-                const selectedValue = lokasiPopulerSelect.value;
-                if (lokasiPopulerData[selectedValue]) {
-                    const lokasi = lokasiPopulerData[selectedValue];
+                const lokasi = getPopularLocationFromSelect(lokasiPopulerSelect);
+                if (lokasi) {
                     currentLocationData = {
                         lat: lokasi.lat,
                         lng: lokasi.lng,
@@ -1859,7 +2061,9 @@ if (window.editModeData) {
                 }
             } else if (isCurrentAlreadySet) {
                 // Current location sudah terisi dari server-side
-                handleLocationTypeChange();
+                if (window.handleLocationTypeChange) {
+                    window.handleLocationTypeChange();
+                }
                 
                 // Set location data dari config
                 if (editData.itineraryConfig.start_lat && editData.itineraryConfig.start_lng) {
@@ -1868,73 +2072,98 @@ if (window.editModeData) {
                         lng: editData.itineraryConfig.start_lng
                     };
                 }
-            } else if (editData.itineraryConfig.start_lat && editData.itineraryConfig.start_lng) {
-                // Belum terisi dari server-side, cek apakah cocok dengan lokasi populer
-                let foundPopular = false;
-                for (const key in lokasiPopulerData) {
-                    const lokasi = lokasiPopulerData[key];
-                    if (Math.abs(lokasi.lat - editData.itineraryConfig.start_lat) < 0.01 &&
-                        Math.abs(lokasi.lng - editData.itineraryConfig.start_lng) < 0.01) {
-                        if (lokasiPopulerSelect && usePopularLocation) {
-                            // Set value
-                            lokasiPopulerSelect.value = key;
-                            
-                            // Set radio button
-                            usePopularLocation.checked = true;
-                            if (useCurrentLocation) useCurrentLocation.checked = false;
-                            
-                            // Panggil handleLocationTypeChange untuk enable select
-                            handleLocationTypeChange();
-                            
-                            // Update selected location info
-                            const infoDiv = document.getElementById('selectedLocationInfo');
-                            const nameSpan = document.getElementById('selectedLocationName');
-                            const addressSpan = document.getElementById('selectedLocationAddress');
-                            if (infoDiv) infoDiv.classList.add('show');
-                            if (nameSpan) nameSpan.textContent = lokasi.name;
-                            if (addressSpan) addressSpan.textContent = lokasi.address;
-                            
-                            // Set location data
-                            currentLocationData = {
-                                lat: lokasi.lat,
-                                lng: lokasi.lng,
-                                name: lokasi.name,
-                                address: lokasi.address
-                            };
-                            
-                            foundPopular = true;
-                            break;
-                        }
-                    }
-                }
-                
-                // Jika tidak cocok dengan lokasi populer, gunakan current location
-                if (!foundPopular && useCurrentLocation) {
-                    useCurrentLocation.checked = true;
-                    if (usePopularLocation) usePopularLocation.checked = false;
-                    handleLocationTypeChange();
-                    
-                    currentLocationData = {
-                        lat: editData.itineraryConfig.start_lat,
-                        lng: editData.itineraryConfig.start_lng
-                    };
-                }
             }
         }, 300);
         
-        // Pre-fill step 2 dengan data itinerary
-        if (editData.itineraryData && editData.itineraryData.length > 0) {
-            window.itineraryData = editData.itineraryData;
-            window.itineraryConfig = editData.itineraryConfig;
+        // Pre-fill step 2 dengan data itinerary dan langsung pindah ke step 2
+        // Validasi data dengan lebih detail
+        console.log('Edit mode: Validasi data', {
+            hasEditData: !!editData,
+            hasItineraryData: !!editData.itineraryData,
+            itineraryDataType: typeof editData.itineraryData,
+            isArray: Array.isArray(editData.itineraryData),
+            length: editData.itineraryData ? editData.itineraryData.length : 0,
+            itineraryData: editData.itineraryData
+        });
+        
+        if (editData && editData.itineraryData) {
+            // Pastikan itineraryData adalah array dan tidak kosong
+            const itineraryDataArray = Array.isArray(editData.itineraryData) 
+                ? editData.itineraryData 
+                : (editData.itineraryData.length ? [editData.itineraryData] : []);
             
-            // Render itinerary result
-            renderItineraryResult(editData.itineraryData);
-            
-            // Auto move to step 2
-            setTimeout(() => {
-                showStep(2);
-            }, 500);
+            if (itineraryDataArray.length > 0) {
+                // Pastikan data di-copy dengan benar (deep copy untuk menghindari reference issues)
+                // Data sudah dalam format JavaScript object dari @json(), tidak perlu parse lagi
+                try {
+                    window.itineraryData = JSON.parse(JSON.stringify(itineraryDataArray));
+                    window.itineraryConfig = JSON.parse(JSON.stringify(editData.itineraryConfig || {}));
+                    
+                    // Pre-fill selected restaurants dan akomodasi
+                    if (window.itineraryConfig.selected_restaurants) {
+                        selectedRestaurants = window.itineraryConfig.selected_restaurants;
+                    }
+                    if (window.itineraryConfig.selected_akomodasi) {
+                        selectedAkomodasi = window.itineraryConfig.selected_akomodasi;
+                    }
+                } catch (e) {
+                    console.error('Error copying edit mode data:', e);
+                    // Fallback: gunakan data langsung jika parse gagal
+                    window.itineraryData = itineraryDataArray;
+                    window.itineraryConfig = editData.itineraryConfig || {};
+                    
+                    // Pre-fill selected restaurants dan akomodasi
+                    if (window.itineraryConfig.selected_restaurants) {
+                        selectedRestaurants = window.itineraryConfig.selected_restaurants;
+                    }
+                    if (window.itineraryConfig.selected_akomodasi) {
+                        selectedAkomodasi = window.itineraryConfig.selected_akomodasi;
+                    }
+                }
+                
+                // Log untuk debugging
+                console.log('Edit mode: Data itinerary dimuat', {
+                    jumlahHari: window.itineraryData.length,
+                    totalDestinasi: window.itineraryData.reduce((sum, day) => sum + (day.destinasi ? day.destinasi.length : 0), 0),
+                    data: window.itineraryData
+                });
+                
+                // Langsung pindah ke step 2 tanpa delay
+                // Gunakan requestAnimationFrame untuk memastikan DOM sudah siap
+                requestAnimationFrame(() => {
+                    // Render itinerary result terlebih dahulu
+                    renderItineraryResult(window.itineraryData);
+                    
+                    // Langsung pindah ke step 2 menggunakan fungsi showStep yang sudah ada
+                    // dengan skipSave=true karena ini initial load
+                    showStep(2, true);
+                    
+                    console.log('Edit mode: Langsung pindah ke step 2');
+                });
+            } else {
+                // Jika array kosong
+                console.warn('Edit mode: Data itinerary kosong atau tidak valid', editData);
+            }
+        } else {
+            // Jika tidak ada data, tetap di step 1
+            console.warn('Edit mode: Tidak ada data itinerary untuk dimuat', {
+                editData: editData,
+                hasItineraryData: editData ? !!editData.itineraryData : false
+            });
         }
-    });
 }
+
+// Panggil initializeEditMode saat DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Coba langsung, jika belum ada tunggu sebentar
+    if (window.editModeData) {
+        initializeEditMode();
+    } else {
+        // Tunggu sebentar untuk memastikan script di blade sudah dieksekusi
+        setTimeout(function() {
+            initializeEditMode();
+        }, 100);
+    }
+});
+
 

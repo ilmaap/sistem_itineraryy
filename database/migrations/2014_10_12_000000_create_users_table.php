@@ -8,6 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * 
+     * Catatan: Kolom role menggunakan ENUM dengan nilai: 'wisatawan', 'admin', 'super_admin'
      */
     public function up(): void
     {
@@ -19,7 +21,8 @@ return new class extends Migration
                 $table->string('email')->unique();
                 $table->string('no_telp')->nullable();
                 $table->string('password');
-                $table->string('role')->default('wisatawan');
+                // Kolom role menggunakan ENUM dengan 3 nilai: wisatawan, admin, super_admin
+                $table->enum('role', ['wisatawan', 'admin', 'super_admin'])->default('wisatawan');
                 $table->timestamps();
             });
         }

@@ -1266,6 +1266,49 @@
     line-height: 1.5;
 }
 
+.recommendation-item.selected {
+    background: #ecfdf5;
+    border-left-color: var(--success);
+}
+
+.recommendation-action {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.btn-select-recommendation {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--primary-color);
+    background: white;
+    color: var(--primary-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-select-recommendation:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-select-recommendation.selected {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+.btn-select-recommendation.selected:hover {
+    background: #059669;
+    border-color: #059669;
+}
+
 /* ========== RIWAYAT ITINERARY ========== */
 
 /* Page Header */

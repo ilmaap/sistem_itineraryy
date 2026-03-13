@@ -6,10 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Destinasi;
 use App\Models\Itinerary;
 use App\Models\ItineraryDestinasi;
+use App\Models\ItineraryRestaurant;
+use App\Models\ItineraryAkomodasi;
 use App\Models\LiburNasional;
 use App\Models\Kategori;
 use App\Models\Restaurant;
 use App\Models\Akomodasi;
+use App\Models\TitikKumpul;
 use Illuminate\Support\Facades\DB;
 
 class ItineraryController extends Controller
@@ -44,36 +47,15 @@ class ItineraryController extends Controller
             ];
         }
         
-        // Data lokasi populer dummy (hardcoded sementara)
-        $lokasiPopuler = [
-            'hotel' => [
-                ['value' => 'hotel-grand-mercure-yogyakarta', 'nama' => 'Hotel Grand Mercure Yogyakarta', 'alamat' => 'Jl. Jend. Sudirman No.9, Yogyakarta', 'lat' => -7.7833, 'lng' => 110.3690],
-                ['value' => 'hotel-phoenix-yogyakarta', 'nama' => 'Hotel Phoenix Yogyakarta', 'alamat' => 'Jl. Jend. Sudirman No.9, Yogyakarta', 'lat' => -7.7829, 'lng' => 110.3687],
-                ['value' => 'hotel-santika-premier-yogyakarta', 'nama' => 'Hotel Santika Premier Yogyakarta', 'alamat' => 'Jl. Jend. Sudirman No.2, Yogyakarta', 'lat' => -7.7850, 'lng' => 110.3710],
-                ['value' => 'hotel-solo', 'nama' => 'Hotel Solo', 'alamat' => 'Jl. Slamet Riyadi No.324, Solo', 'lat' => -7.5667, 'lng' => 110.8167],
-                ['value' => 'hotel-kusuma-sahid-solo', 'nama' => 'Hotel Kusuma Sahid Solo', 'alamat' => 'Jl. Sugiyopranoto No.20, Solo', 'lat' => -7.5633, 'lng' => 110.8217],
-            ],
-            'landmark' => [
-                ['value' => 'malioboro', 'nama' => 'Malioboro', 'alamat' => 'Jl. Malioboro, Yogyakarta', 'lat' => -7.7956, 'lng' => 110.3694],
-                ['value' => 'stasiun-tugu-yogyakarta', 'nama' => 'Stasiun Tugu Yogyakarta', 'alamat' => 'Jl. Mangkubumi No.1, Yogyakarta', 'lat' => -7.7894, 'lng' => 110.3633],
-                ['value' => 'bandara-adisucipto', 'nama' => 'Bandara Adisucipto Yogyakarta', 'alamat' => 'Jl. Solo, Maguwoharjo, Yogyakarta', 'lat' => -7.7882, 'lng' => 110.4319],
-                ['value' => 'stasiun-purwosari-solo', 'nama' => 'Stasiun Purwosari Solo', 'alamat' => 'Jl. Slamet Riyadi, Solo', 'lat' => -7.5717, 'lng' => 110.8017],
-                ['value' => 'bandara-adisumarmo-solo', 'nama' => 'Bandara Adisumarmo Solo', 'alamat' => 'Jl. Raya Solo - Yogyakarta, Solo', 'lat' => -7.5161, 'lng' => 110.7572],
-            ],
-            'wisata' => [
-                ['value' => 'keraton-yogyakarta', 'nama' => 'Keraton Yogyakarta', 'alamat' => 'Jl. Rotowijayan, Yogyakarta', 'lat' => -7.8052, 'lng' => 110.3647],
-                ['value' => 'candi-prambanan', 'nama' => 'Candi Prambanan', 'alamat' => 'Jl. Raya Solo - Yogyakarta, Prambanan', 'lat' => -7.7520, 'lng' => 110.4915],
-                ['value' => 'keraton-solo', 'nama' => 'Keraton Solo', 'alamat' => 'Jl. Slamet Riyadi, Solo', 'lat' => -7.5747, 'lng' => 110.8247],
-                ['value' => 'taman-sari', 'nama' => 'Taman Sari Yogyakarta', 'alamat' => 'Jl. Taman, Yogyakarta', 'lat' => -7.8100, 'lng' => 110.3589],
-            ],
-            'mall' => [
-                ['value' => 'malioboro-mall', 'nama' => 'Malioboro Mall', 'alamat' => 'Jl. Malioboro No.52-58, Yogyakarta', 'lat' => -7.7931, 'lng' => 110.3647],
-                ['value' => 'plaza-ambarrukmo', 'nama' => 'Plaza Ambarrukmo', 'alamat' => 'Jl. Laksda Adisucipto No.81, Yogyakarta', 'lat' => -7.7831, 'lng' => 110.4075],
-                ['value' => 'solo-grand-mall', 'nama' => 'Solo Grand Mall', 'alamat' => 'Jl. Slamet Riyadi, Solo', 'lat' => -7.5661, 'lng' => 110.8189],
-            ]
-        ];
+        // Ambil titik kumpul dari database (untuk daftar lokasi populer)
+        $titikKumpul = TitikKumpul::query()
+            ->select(['id', 'nama', 'kategori', 'latitude', 'longitude', 'alamat'])
+            ->orderBy('kategori')
+            ->orderBy('nama')
+            ->get()
+            ->groupBy('kategori');
 
-        return view('wisatawan.itinerary.create', compact('kategori', 'lokasiPopuler'));
+        return view('wisatawan.itinerary.create', compact('kategori', 'titikKumpul'));
     }
 
     /**
@@ -112,34 +94,13 @@ class ItineraryController extends Controller
             ];
         }
         
-        // Data lokasi populer dummy (sama seperti create)
-        $lokasiPopuler = [
-            'hotel' => [
-                ['value' => 'hotel-grand-mercure-yogyakarta', 'nama' => 'Hotel Grand Mercure Yogyakarta', 'alamat' => 'Jl. Jend. Sudirman No.9, Yogyakarta', 'lat' => -7.7833, 'lng' => 110.3690],
-                ['value' => 'hotel-phoenix-yogyakarta', 'nama' => 'Hotel Phoenix Yogyakarta', 'alamat' => 'Jl. Jend. Sudirman No.9, Yogyakarta', 'lat' => -7.7829, 'lng' => 110.3687],
-                ['value' => 'hotel-santika-premier-yogyakarta', 'nama' => 'Hotel Santika Premier Yogyakarta', 'alamat' => 'Jl. Jend. Sudirman No.2, Yogyakarta', 'lat' => -7.7850, 'lng' => 110.3710],
-                ['value' => 'hotel-solo', 'nama' => 'Hotel Solo', 'alamat' => 'Jl. Slamet Riyadi No.324, Solo', 'lat' => -7.5667, 'lng' => 110.8167],
-                ['value' => 'hotel-kusuma-sahid-solo', 'nama' => 'Hotel Kusuma Sahid Solo', 'alamat' => 'Jl. Sugiyopranoto No.20, Solo', 'lat' => -7.5633, 'lng' => 110.8217],
-            ],
-            'landmark' => [
-                ['value' => 'malioboro', 'nama' => 'Malioboro', 'alamat' => 'Jl. Malioboro, Yogyakarta', 'lat' => -7.7956, 'lng' => 110.3694],
-                ['value' => 'stasiun-tugu-yogyakarta', 'nama' => 'Stasiun Tugu Yogyakarta', 'alamat' => 'Jl. Mangkubumi No.1, Yogyakarta', 'lat' => -7.7894, 'lng' => 110.3633],
-                ['value' => 'bandara-adisucipto', 'nama' => 'Bandara Adisucipto Yogyakarta', 'alamat' => 'Jl. Solo, Maguwoharjo, Yogyakarta', 'lat' => -7.7882, 'lng' => 110.4319],
-                ['value' => 'stasiun-purwosari-solo', 'nama' => 'Stasiun Purwosari Solo', 'alamat' => 'Jl. Slamet Riyadi, Solo', 'lat' => -7.5717, 'lng' => 110.8017],
-                ['value' => 'bandara-adisumarmo-solo', 'nama' => 'Bandara Adisumarmo Solo', 'alamat' => 'Jl. Raya Solo - Yogyakarta, Solo', 'lat' => -7.5161, 'lng' => 110.7572],
-            ],
-            'wisata' => [
-                ['value' => 'keraton-yogyakarta', 'nama' => 'Keraton Yogyakarta', 'alamat' => 'Jl. Rotowijayan, Yogyakarta', 'lat' => -7.8052, 'lng' => 110.3647],
-                ['value' => 'candi-prambanan', 'nama' => 'Candi Prambanan', 'alamat' => 'Jl. Raya Solo - Yogyakarta, Prambanan', 'lat' => -7.7520, 'lng' => 110.4915],
-                ['value' => 'keraton-solo', 'nama' => 'Keraton Solo', 'alamat' => 'Jl. Slamet Riyadi, Solo', 'lat' => -7.5747, 'lng' => 110.8247],
-                ['value' => 'taman-sari', 'nama' => 'Taman Sari Yogyakarta', 'alamat' => 'Jl. Taman, Yogyakarta', 'lat' => -7.8100, 'lng' => 110.3589],
-            ],
-            'mall' => [
-                ['value' => 'malioboro-mall', 'nama' => 'Malioboro Mall', 'alamat' => 'Jl. Malioboro No.52-58, Yogyakarta', 'lat' => -7.7931, 'lng' => 110.3647],
-                ['value' => 'plaza-ambarrukmo', 'nama' => 'Plaza Ambarrukmo', 'alamat' => 'Jl. Laksda Adisucipto No.81, Yogyakarta', 'lat' => -7.7831, 'lng' => 110.4075],
-                ['value' => 'solo-grand-mall', 'nama' => 'Solo Grand Mall', 'alamat' => 'Jl. Slamet Riyadi, Solo', 'lat' => -7.5661, 'lng' => 110.8189],
-            ]
-        ];
+        // Ambil titik kumpul dari database (untuk daftar lokasi populer)
+        $titikKumpul = TitikKumpul::query()
+            ->select(['id', 'nama', 'kategori', 'latitude', 'longitude', 'alamat'])
+            ->orderBy('kategori')
+            ->orderBy('nama')
+            ->get()
+            ->groupBy('kategori');
         
         // Format data itinerary untuk pre-fill form
         // Parse kategori dari JSON
@@ -188,6 +149,24 @@ class ItineraryController extends Controller
             $tanggal->modify('+1 day');
         }
         
+        // Format restaurant dan akomodasi yang sudah dipilih
+        $selectedRestaurants = [];
+        $selectedAkomodasi = [];
+        
+        foreach ($itinerary->itineraryRestaurant as $ir) {
+            if (!isset($selectedRestaurants[$ir->no_hari])) {
+                $selectedRestaurants[$ir->no_hari] = [];
+            }
+            $selectedRestaurants[$ir->no_hari][] = $ir->restaurant_id;
+        }
+        
+        foreach ($itinerary->itineraryAkomodasi as $ia) {
+            if (!isset($selectedAkomodasi[$ia->no_hari])) {
+                $selectedAkomodasi[$ia->no_hari] = [];
+            }
+            $selectedAkomodasi[$ia->no_hari][] = $ia->akomodasi_id;
+        }
+        
         // Format config untuk pre-fill
         $itineraryConfig = [
             'tanggal_keberangkatan' => $itinerary->tgl_keberangkatan->format('Y-m-d'), // Format untuk input date
@@ -198,31 +177,33 @@ class ItineraryController extends Controller
             'min_rating' => $itinerary->min_rating,
             'start_lat' => $itinerary->start_location_lat,
             'start_lng' => $itinerary->start_location_lng,
-            'kategori' => $kategoriSelected
+            'kategori' => $kategoriSelected,
+            'selected_restaurants' => $selectedRestaurants,
+            'selected_akomodasi' => $selectedAkomodasi
         ];
         
         // Tentukan lokasi awal type (current atau popular)
-        // Cek apakah koordinat cocok dengan lokasi populer
+        // Cek apakah koordinat cocok dengan titik_kumpul
         $lokasiAwalType = 'current';
         $lokasiPopulerValue = null;
         
         if ($itinerary->start_location_lat && $itinerary->start_location_lng) {
-            // Cek apakah cocok dengan lokasi populer
-            foreach ($lokasiPopuler as $group => $lokasiList) {
-                foreach ($lokasiList as $lokasi) {
-                    if (abs($lokasi['lat'] - $itinerary->start_location_lat) < 0.01 &&
-                        abs($lokasi['lng'] - $itinerary->start_location_lng) < 0.01) {
-                        $lokasiAwalType = 'popular';
-                        $lokasiPopulerValue = $lokasi['value'];
-                        break 2;
-                    }
-                }
+            $matched = TitikKumpul::query()
+                ->select(['id', 'latitude', 'longitude'])
+                ->whereRaw('ABS(latitude - ?) < 0.01', [$itinerary->start_location_lat])
+                ->whereRaw('ABS(longitude - ?) < 0.01', [$itinerary->start_location_lng])
+                ->orderByRaw('ABS(latitude - ?) + ABS(longitude - ?)', [$itinerary->start_location_lat, $itinerary->start_location_lng])
+                ->first();
+
+            if ($matched) {
+                $lokasiAwalType = 'popular';
+                $lokasiPopulerValue = (string) $matched->id;
             }
         }
         
         $isEditMode = true;
         
-        return view('wisatawan.itinerary.create', compact('itinerary', 'kategori', 'lokasiPopuler', 'itineraryData', 'itineraryConfig', 'kategoriSelected', 'isEditMode', 'lokasiAwalType', 'lokasiPopulerValue'));
+        return view('wisatawan.itinerary.create', compact('itinerary', 'kategori', 'titikKumpul', 'itineraryData', 'itineraryConfig', 'kategoriSelected', 'isEditMode', 'lokasiAwalType', 'lokasiPopulerValue'));
     }
 
     /**
@@ -385,7 +366,7 @@ class ItineraryController extends Controller
             $allDestinasi
         );
         
-        // 5. Bagi destinasi per hari (minimal 3 per hari)
+        // 5. Bagi destinasi per hari (minimal 3, maksimal 4 per hari)
         $destinasiPerHari = $this->distributeDestinations(
             $optimizedDestinasi,
             $validated['jumlah_hari']
@@ -454,7 +435,7 @@ class ItineraryController extends Controller
             $destinasi
         );
         
-        // Bagi destinasi per hari (minimal 3 per hari)
+        // Bagi destinasi per hari (minimal 3, maksimal 4 per hari)
         $destinasiPerHari = $this->distributeDestinations(
             $optimizedDestinasi,
             $validated['jumlah_hari']
@@ -792,6 +773,78 @@ class ItineraryController extends Controller
             }
         }
         
+        // Simpan restaurant yang dipilih
+        if (!empty($itineraryConfig['selected_restaurants']) && is_array($itineraryConfig['selected_restaurants'])) {
+            // Hapus restaurant lama
+            ItineraryRestaurant::where('itinerary_id', $itinerary->id)->delete();
+            
+            foreach ($itineraryConfig['selected_restaurants'] as $hari => $restaurantIds) {
+                if (is_array($restaurantIds)) {
+                    foreach ($restaurantIds as $restaurantId) {
+                        // Ambil jarak dari destinasi terakhir di hari tersebut
+                        $dayData = collect($itineraryData)->firstWhere('hari', $hari);
+                        $jarak = 0;
+                        if ($dayData && !empty($dayData['destinasi'])) {
+                            $lastDest = end($dayData['destinasi']);
+                            // Hitung jarak dari destinasi terakhir ke restaurant
+                            $restaurant = \App\Models\Restaurant::find($restaurantId);
+                            if ($restaurant && isset($lastDest['lat']) && isset($lastDest['lng'])) {
+                                $jarak = $this->haversineDistance(
+                                    $lastDest['lat'],
+                                    $lastDest['lng'],
+                                    $restaurant->latitude,
+                                    $restaurant->longitude
+                                );
+                            }
+                        }
+                        
+                        ItineraryRestaurant::create([
+                            'itinerary_id' => $itinerary->id,
+                            'restaurant_id' => $restaurantId,
+                            'no_hari' => $hari,
+                            'jarak' => round($jarak, 2)
+                        ]);
+                    }
+                }
+            }
+        }
+        
+        // Simpan akomodasi yang dipilih
+        if (!empty($itineraryConfig['selected_akomodasi']) && is_array($itineraryConfig['selected_akomodasi'])) {
+            // Hapus akomodasi lama
+            ItineraryAkomodasi::where('itinerary_id', $itinerary->id)->delete();
+            
+            foreach ($itineraryConfig['selected_akomodasi'] as $hari => $akomodasiIds) {
+                if (is_array($akomodasiIds)) {
+                    foreach ($akomodasiIds as $akomodasiId) {
+                        // Ambil jarak dari destinasi terakhir di hari tersebut
+                        $dayData = collect($itineraryData)->firstWhere('hari', $hari);
+                        $jarak = 0;
+                        if ($dayData && !empty($dayData['destinasi'])) {
+                            $lastDest = end($dayData['destinasi']);
+                            // Hitung jarak dari destinasi terakhir ke akomodasi
+                            $akomodasi = \App\Models\Akomodasi::find($akomodasiId);
+                            if ($akomodasi && isset($lastDest['lat']) && isset($lastDest['lng'])) {
+                                $jarak = $this->haversineDistance(
+                                    $lastDest['lat'],
+                                    $lastDest['lng'],
+                                    $akomodasi->latitude,
+                                    $akomodasi->longitude
+                                );
+                            }
+                        }
+                        
+                        ItineraryAkomodasi::create([
+                            'itinerary_id' => $itinerary->id,
+                            'akomodasi_id' => $akomodasiId,
+                            'no_hari' => $hari,
+                            'jarak' => round($jarak, 2)
+                        ]);
+                    }
+                }
+            }
+        }
+        
         return redirect()->route('wisatawan.itinerary.index')
             ->with('success', $message);
     }
@@ -816,6 +869,8 @@ class ItineraryController extends Controller
     {
         $itinerary = Itinerary::with([
             'itineraryDestinasi.destinasi',
+            'itineraryRestaurant.restaurant',
+            'itineraryAkomodasi.akomodasi',
             'kategori'
         ])
             ->where('id', $id)
@@ -968,40 +1023,43 @@ class ItineraryController extends Controller
     }
 
     /**
-     * Bagi destinasi per hari (minimal 3 per hari)
+     * Bagi destinasi per hari (minimal 3, maksimal 4 per hari)
      */
     private function distributeDestinations($destinasi, $jumlahHari)
     {
         $minPerHari = 3;
+        $maxPerHari = 4;
         $total = count($destinasi);
         $destinasiPerHari = [];
         
-        if ($total >= $jumlahHari * $minPerHari) {
-            // Cukup untuk minimal 3 per hari
-            $perHari = floor($total / $jumlahHari);
-            $sisa = $total % $jumlahHari;
+        // Jika total destinasi melebihi kapasitas maksimal (jumlah_hari * 4)
+        // Maka hanya ambil destinasi sesuai kapasitas
+        $maxCapacity = $jumlahHari * $maxPerHari;
+        if ($total > $maxCapacity) {
+            $destinasi = array_slice($destinasi, 0, $maxCapacity);
+            $total = $maxCapacity;
+        }
+        
+        // Hitung distribusi per hari
+        $perHari = floor($total / $jumlahHari);
+        $sisa = $total % $jumlahHari;
+        
+        $index = 0;
+        for ($hari = 1; $hari <= $jumlahHari; $hari++) {
+            // Hitung jumlah destinasi untuk hari ini
+            $jumlah = $perHari + ($hari <= $sisa ? 1 : 0);
             
-            $index = 0;
-            for ($hari = 1; $hari <= $jumlahHari; $hari++) {
-                $jumlah = $perHari + ($hari <= $sisa ? 1 : 0);
-                $jumlah = max($minPerHari, $jumlah); // Minimal 3
+            // Pastikan dalam range min (3) dan max (4)
+            $jumlah = max($minPerHari, min($maxPerHari, $jumlah));
+            
+            // Ambil destinasi untuk hari ini
+            $sisaDestinasi = $total - $index;
+            if ($sisaDestinasi > 0) {
+                $jumlah = min($jumlah, $sisaDestinasi);
                 $destinasiPerHari[$hari] = array_slice($destinasi, $index, $jumlah);
                 $index += $jumlah;
-            }
-        } else {
-            // Tidak cukup, bagi rata
-            $perHari = ceil($total / $jumlahHari);
-            $index = 0;
-            for ($hari = 1; $hari <= $jumlahHari; $hari++) {
-                $sisaDestinasi = $total - $index;
-                $sisaHari = $jumlahHari - $hari + 1;
-                $jumlah = min($perHari, $sisaDestinasi);
-                if ($sisaDestinasi > 0) {
-                    $destinasiPerHari[$hari] = array_slice($destinasi, $index, $jumlah);
-                    $index += $jumlah;
-                } else {
-                    $destinasiPerHari[$hari] = [];
-                }
+            } else {
+                $destinasiPerHari[$hari] = [];
             }
         }
         
@@ -1215,5 +1273,27 @@ class ItineraryController extends Controller
         $year = $tanggal->format('Y');
         
         return "$dayName, $day $month $year";
+    }
+
+    /**
+     * Remove the specified itinerary from storage.
+     */
+    public function destroy($id)
+    {
+        $itinerary = Itinerary::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+        
+        // Hapus relasi itinerary_destinasi (akan terhapus otomatis karena cascade)
+        ItineraryDestinasi::where('itinerary_id', $itinerary->id)->delete();
+        
+        // Hapus relasi kategori (many-to-many)
+        $itinerary->kategori()->detach();
+        
+        // Hapus itinerary
+        $itinerary->delete();
+        
+        return redirect()->route('wisatawan.itinerary.index')
+            ->with('success', 'Itinerary berhasil dihapus!');
     }
 }
