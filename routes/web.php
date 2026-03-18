@@ -11,6 +11,8 @@ use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\AkomodasiController;
 use App\Http\Controllers\ItineraryController;
 use App\Http\Controllers\PermohonanAkunController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\WisatawanDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,89 +42,63 @@ Route::get('/tentang-kami', function () {
 Route::get('/form-permohonan', [PermohonanAkunController::class, 'create'])->name('form-permohonan');
 Route::post('/form-permohonan', [PermohonanAkunController::class, 'store'])->name('form-permohonan.store');
 
-// Login Routes - Separated by Role
-// Wisatawan Login
-Route::get('/login/wisatawan', [LoginController::class, 'showWisatawanLoginForm'])->name('login.wisatawan');
-Route::post('/login/wisatawan', [LoginController::class, 'wisatawanLogin'])->name('login.wisatawan.submit');
+// Login Routes - Single UI untuk semua role
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 
-// Admin Login (untuk admin dan super admin)
-Route::get('/login/admin', [LoginController::class, 'showAdminLoginForm'])->name('login.admin');
-Route::post('/login/admin', [LoginController::class, 'adminLogin'])->name('login.admin.submit');
+// Legacy routes - tetap ada demi kompatibilitas, tapi diarahkan ke login tunggal
+Route::get('/login/wisatawan', function () {
+    return redirect()->route('login');
+})->name('login.wisatawan');
+Route::post('/login/wisatawan', [LoginController::class, 'login'])->name('login.wisatawan.submit');
 
-// Super Admin Login - redirect ke admin login (sudah digabung)
+Route::get('/login/admin', function () {
+    return redirect()->route('login');
+})->name('login.admin');
+Route::post('/login/admin', [LoginController::class, 'login'])->name('login.admin.submit');
+
 Route::get('/login/super-admin', function () {
-    return redirect()->route('login.admin');
+    return redirect()->route('login');
 })->name('login.super-admin');
-
-// Legacy login route - redirect to wisatawan login
-Route::get('/login', function () {
-    return redirect()->route('login.wisatawan');
-})->name('login');
 
 // Logout Routes (bisa diakses via GET atau POST)
 Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Dashboard Routes (Protected)
-Route::middleware('auth')->group(function () {
-    Route::get('/admin/dashboard', function () {
-        $user = auth()->user();
-        
-        // Get statistics
-        $stats = [
-            'total_users' => \App\Models\User::count(),
-            'total_destinasi' => \App\Models\Destinasi::count(),
-            'total_paket' => \App\Models\Paket::count(),
-            'total_restaurant' => \App\Models\Restaurant::count(),
-            'total_akomodasi' => \App\Models\Akomodasi::count(),
-            'total_libur' => \App\Models\LiburNasional::count(),
-        ];
-        
-        return view('admin.dashboard', [
-            'user' => $user,
-            'stats' => $stats
-        ]);
-    })->name('admin.dashboard');
-    // Admin Routes
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('destinasi', DestinasiController::class);
-        Route::resource('paket', PaketController::class);
-        Route::resource('user', UserController::class);
-        Route::resource('libur_nasional', LiburNasionalController::class);
-        Route::resource('restaurant', RestaurantController::class);
-        Route::resource('akomodasi', AkomodasiController::class);
+Route::middleware(['auth', 'prevent.back'])->group(function () {
+    // Admin Routes - hanya untuk admin & super_admin
+    Route::prefix('admin')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
+        Route::name('admin.')->group(function () {
+            Route::resource('destinasi', DestinasiController::class);
+            Route::resource('paket', PaketController::class);
+            Route::resource('user', UserController::class);
+            Route::resource('libur_nasional', LiburNasionalController::class);
+            Route::resource('restaurant', RestaurantController::class);
+            Route::resource('akomodasi', AkomodasiController::class);
+        });
     });
 
+    // Wisatawan Routes - hanya untuk wisatawan
+    Route::prefix('wisatawan')->group(function () {
+        Route::get('/dashboard', [WisatawanDashboardController::class, 'index'])->name('wisatawan.dashboard');
 
-
-    
-    Route::get('/wisatawan/dashboard', function () {
-        return view('wisatawan.dashboard', ['user' => auth()->user()]);
-    })->name('wisatawan.dashboard');
-
-    // Wisatawan Routes
-    Route::prefix('wisatawan')->name('wisatawan.')->group(function () {
-        Route::get('/itinerary', [ItineraryController::class, 'index'])->name('itinerary.index');
-        Route::get('/itinerary/create', [ItineraryController::class, 'create'])->name('itinerary.create');
-        
-        // AJAX Endpoints - HARUS SEBELUM route dengan parameter {id}
-        Route::get('/itinerary/destinations', [ItineraryController::class, 'getDestinations'])->name('itinerary.destinations');
-        Route::post('/itinerary/generate', [ItineraryController::class, 'generate'])->name('itinerary.generate');
-        Route::post('/itinerary/reoptimize', [ItineraryController::class, 'reoptimize'])->name('itinerary.reoptimize');
-        Route::get('/api/holiday-info', [ItineraryController::class, 'getHolidayInfo'])->name('api.holiday-info');
-        Route::get('/api/restaurant-recommendations', [ItineraryController::class, 'getRestaurantRecommendations'])->name('api.restaurant-recommendations');
-        Route::get('/api/akomodasi-recommendations', [ItineraryController::class, 'getAkomodasiRecommendations'])->name('api.akomodasi-recommendations');
-        
-        // Store itinerary
-        Route::post('/itinerary', [ItineraryController::class, 'store'])->name('itinerary.store');
-        
-        // Routes dengan parameter {id} - HARUS SETELAH route spesifik
-        Route::get('/itinerary/{id}', [ItineraryController::class, 'show'])->name('itinerary.show');
-        Route::get('/itinerary/{id}/edit', [ItineraryController::class, 'edit'])->name('itinerary.edit');
-        Route::delete('/itinerary/{id}', [ItineraryController::class, 'destroy'])->name('itinerary.destroy');
-        
-        // Paket Wisata Routes
-        Route::get('/paket', [PaketWisatawanController::class, 'index'])->name('paket.index');
-        Route::get('/paket/{id}', [PaketWisatawanController::class, 'show'])->name('paket.show');
+        Route::name('wisatawan.')->group(function () {
+            Route::get('/itinerary', [ItineraryController::class, 'index'])->name('itinerary.index');
+            Route::get('/itinerary/create', [ItineraryController::class, 'create'])->name('itinerary.create');
+            Route::get('/itinerary/destinations', [ItineraryController::class, 'getDestinations'])->name('itinerary.destinations');
+            Route::post('/itinerary/generate', [ItineraryController::class, 'generate'])->name('itinerary.generate');
+            Route::post('/itinerary/reoptimize', [ItineraryController::class, 'reoptimize'])->name('itinerary.reoptimize');
+            Route::get('/api/holiday-info', [ItineraryController::class, 'getHolidayInfo'])->name('api.holiday-info');
+            Route::get('/api/restaurant-recommendations', [ItineraryController::class, 'getRestaurantRecommendations'])->name('api.restaurant-recommendations');
+            Route::get('/api/akomodasi-recommendations', [ItineraryController::class, 'getAkomodasiRecommendations'])->name('api.akomodasi-recommendations');
+            Route::post('/itinerary', [ItineraryController::class, 'store'])->name('itinerary.store');
+            Route::get('/itinerary/{id}', [ItineraryController::class, 'show'])->name('itinerary.show');
+            Route::get('/itinerary/{id}/edit', [ItineraryController::class, 'edit'])->name('itinerary.edit');
+            Route::delete('/itinerary/{id}', [ItineraryController::class, 'destroy'])->name('itinerary.destroy');
+            Route::get('/paket', [PaketWisatawanController::class, 'index'])->name('paket.index');
+            Route::get('/paket/{id}', [PaketWisatawanController::class, 'show'])->name('paket.show');
+        });
     });
-
 });

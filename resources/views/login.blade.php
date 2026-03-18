@@ -17,7 +17,7 @@
 
             <h1 class="auth-title">Masuk ke Sistem</h1>
             <p class="auth-subtitle">
-                Silakan masukkan akun Anda untuk melanjutkan. Pilih peran masuk sebagai <strong>Wisatawan</strong> atau <strong>Admin</strong>.
+                Silakan masukkan email dan password Anda. Sistem akan mengenali peran Anda secara otomatis.
             </p>
 
             @if ($errors->any())
@@ -62,18 +62,6 @@
                             placeholder="Masukkan password"
                             required
                         >
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="role">Masuk sebagai</label>
-                    <div class="input-row">
-                        <i class="fa-solid fa-user-tag input-icon" aria-hidden="true"></i>
-                        <select id="role" name="role" class="input with-icon" required>
-                            <option value="" disabled {{ old('role') ? '' : 'selected' }}>Pilih peran</option>
-                            <option value="wisatawan" {{ old('role') === 'wisatawan' ? 'selected' : '' }}>Wisatawan</option>
-                            <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                        </select>
                     </div>
                 </div>
 
