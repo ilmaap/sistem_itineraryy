@@ -19,7 +19,26 @@
                         <li><a href="{{ route('admin.akomodasi.index') }}" class="{{ request()->routeIs('admin.akomodasi.*') ? 'active' : '' }}">Kelola Akomodasi</a></li>
                     </ul>
                 </li>
-            <li><a href="{{ route('admin.user.index') }}" class="{{ request()->routeIs('admin.user.*') ? 'active' : '' }}">Manajemen Pengguna</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle {{ request()->routeIs('admin.user.*') || request()->routeIs('admin.permohonan.*') ? 'active' : '' }}">
+                    Kelola Pengguna
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="{{ route('admin.user.index') }}"
+                           class="{{ request()->routeIs('admin.user.*') ? 'active' : '' }}">
+                            Manajemen Pengguna
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.permohonan.index') }}"
+                           class="{{ request()->routeIs('admin.permohonan.*') ? 'active' : '' }}">
+                            Permohonan Akun
+                        </a>
+                    </li>
+                </ul>
+            </li>
             <li><a href="{{ route('admin.libur_nasional.index') }}" class="{{ request()->routeIs('admin.libur_nasional.*') ? 'active' : '' }}">Kelola Hari Libur</a></li>
             <li>
                 <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display: inline;">
@@ -72,38 +91,53 @@
         });
     }
 
-    // Dropdown toggle for mobile and desktop
-    const dropdownToggle = document.querySelector('.dropdown-toggle');
-    const dropdown = document.querySelector('.dropdown');
-    
-    if (dropdownToggle && dropdown) {
-        // Handle click on dropdown toggle
-        dropdownToggle.addEventListener('click', function(e) {
-            if (window.innerWidth <= 767) {
-                e.preventDefault();
-                e.stopPropagation();
-                dropdown.classList.toggle('active');
-            }
-        });
+    // Dropdown toggle for mobile (handles ALL dropdowns).
+    const dropdownToggles = navMenu ? navMenu.querySelectorAll('.dropdown-toggle') : document.querySelectorAll('.dropdown-toggle');
 
-        // Close dropdown when clicking outside (mobile only)
-        document.addEventListener('click', function(e) {
-            if (window.innerWidth <= 767) {
-                if (!dropdown.contains(e.target)) {
-                    dropdown.classList.remove('active');
-                }
-            }
-        });
+    // Guard: nothing to init.
+    if (dropdownToggles && dropdownToggles.length > 0) {
+        const allDropdowns = navMenu ? navMenu.querySelectorAll('.dropdown') : document.querySelectorAll('.dropdown');
 
-        // Close dropdown and menu when clicking on dropdown menu links (mobile only)
-        const dropdownLinks = dropdown.querySelectorAll('.dropdown-menu a');
-        dropdownLinks.forEach(link => {
-            link.addEventListener('click', () => {
+        // Toggle each dropdown on mobile.
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function (e) {
                 if (window.innerWidth <= 767) {
-                    dropdown.classList.remove('active');
-                    navMenu.classList.remove('active');
-                    hamburger.classList.remove('active');
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const dropdown = toggle.closest('.dropdown');
+                    if (!dropdown) return;
+
+                    // Close other dropdowns, then toggle this one.
+                    allDropdowns.forEach(d => {
+                        if (d !== dropdown) d.classList.remove('active');
+                    });
+                    dropdown.classList.toggle('active');
                 }
+            });
+        });
+
+        // Close all dropdowns when clicking outside (mobile only).
+        document.addEventListener('click', function (e) {
+            if (window.innerWidth <= 767) {
+                const clickedInsideDropdown = e.target && e.target.closest && e.target.closest('.dropdown');
+                if (!clickedInsideDropdown) {
+                    allDropdowns.forEach(d => d.classList.remove('active'));
+                }
+            }
+        });
+
+        // Close dropdown and menu when clicking on dropdown menu links (mobile only).
+        allDropdowns.forEach(dropdown => {
+            const dropdownLinks = dropdown.querySelectorAll('.dropdown-menu a');
+            dropdownLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 767) {
+                        dropdown.classList.remove('active');
+                        navMenu.classList.remove('active');
+                        hamburger.classList.remove('active');
+                    }
+                });
             });
         });
     }

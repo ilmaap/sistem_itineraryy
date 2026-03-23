@@ -42,6 +42,7 @@ class PermohonanAkunController extends Controller
             'email' => $request->email,
             'no_telp' => $request->no_telp,
             'deskripsi' => $request->deskripsi,
+            'status' => PermohonanAkun::STATUS_MENUNGGU,
         ]);
 
         return redirect()->route('form-permohonan')

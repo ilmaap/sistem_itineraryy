@@ -37,6 +37,7 @@ class User extends Authenticatable
         'no_telp',
         'password',
         'role',
+        'is_active',
     ];
 
     /**

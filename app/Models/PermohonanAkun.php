@@ -11,11 +11,16 @@ class PermohonanAkun extends Model
 
     protected $table = 'permohonan_akun';
 
+    public const STATUS_MENUNGGU = 'menunggu';
+    public const STATUS_DISETUJUI = 'disetujui';
+    public const STATUS_DITOLAK = 'ditolak';
+
     protected $fillable = [
         'nama',
         'email',
         'no_telp',
         'deskripsi',
+        'status',
     ];
 
     protected $casts = [

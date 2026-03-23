@@ -60,6 +60,19 @@ class LoginController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        // Tolak login jika akun dinonaktifkan oleh admin.
+        // Fallback: jika kolom `is_active` belum ada (null), anggap user masih aktif
+        // supaya tidak mengunci login sebelum migration dijalankan.
+        if (!($user->is_active ?? true)) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Akun Anda dinonaktifkan oleh admin.'])
+                ->withInput($request->except('password'));
+        }
+
         // Regenerate session untuk keamanan
         $request->session()->regenerate();
 

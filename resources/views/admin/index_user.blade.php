@@ -18,7 +18,7 @@
                     <h1 class="page-title">
                         Kelola Pengguna
                     </h1>
-                    <h4 class="page-subtitle">Tambah, edit, atau hapus pengguna</h4>
+                    <h4 class="page-subtitle">Tambah, edit, atau nonaktifkan pengguna</h4>
                 </div>
                 <a href="{{ route('admin.user.create') }}" class="btn-add">
                     <i class="fas fa-plus"></i>
@@ -114,14 +114,29 @@
                                                     <i class="fas fa-edit"></i>
                                                     <!-- Edit -->
                                                 </a>
-                                                <form action="{{ route('admin.user.destroy', $item->id) }}" method="POST" class="delete-form" style="display: inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn-delete" title="Hapus" onclick="return confirmDelete(event)">
-                                                        <i class="fas fa-trash"></i>
-                                                        <!-- Hapus -->
-                                                    </button>
-                                                </form>
+                                                @if($item->is_active ?? true)
+                                                    <form action="{{ route('admin.user.destroy', $item->id) }}" method="POST" class="delete-form" style="display: inline;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn-delete" title="Nonaktifkan" onclick="return confirmDelete(event)">
+                                                            <i class="fas fa-ban"></i>
+                                                            <!-- Nonaktifkan -->
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <div class="action-buttons">
+                                                        <form action="{{ route('admin.user.activate', $item->id) }}" method="POST" class="activate-form" style="display: inline;">
+                                                            @csrf
+                                                            <button type="submit" class="btn-edit" title="Aktifkan" onclick="return confirmActivate(event)">
+                                                                <i class="fas fa-check-circle"></i>
+                                                                <!-- Aktifkan -->
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    <span style="background:#fee2e2;color:#991b1b;padding:0.25rem 0.75rem;border-radius:12px;font-size:0.875rem;font-weight:600;">
+                                                        Nonaktif
+                                                    </span>
+                                                @endif
                                             </div>
                                         @else
                                             <span style="color: #718096; font-size: 0.875rem;">Tidak dapat diakses</span>
@@ -175,12 +190,32 @@
             
             Swal.fire({
                 title: "Apakah Anda yakin?",
-                text: "Data yang dihapus tidak bisa dikembalikan!",
+                text: "Akun akan dinonaktifkan. Akun tidak bisa login sampai diaktifkan kembali.",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Ya, hapus!",
+                confirmButtonText: "Ya, nonaktifkan!",
+                cancelButtonText: "Batal"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+
+        function confirmActivate(event) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+
+            Swal.fire({
+                title: "Aktifkan akun?",
+                text: "Akun akan dapat login kembali.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#14b8a6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya, aktifkan!",
                 cancelButtonText: "Batal"
             }).then((result) => {
                 if (result.isConfirmed) {

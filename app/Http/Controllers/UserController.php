@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Schema;
 
 class UserController extends Controller
 {
@@ -186,28 +187,74 @@ class UserController extends Controller
     }
 
     /**
-     * Menghapus user
+     * Menonaktifkan user (pengganti fitur hapus permanen)
      */
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+
+        // Proteksi: kolom `is_active` perlu ditambahkan lewat migration.
+        if (!Schema::hasColumn('user', 'is_active')) {
+            return redirect()->route('admin.user.index')
+                ->with('error', 'Fitur nonaktifkan belum siap: jalankan migration `is_active` terlebih dahulu.');
+        }
         
-        // Jangan izinkan menghapus user yang sedang login
+        // Jangan izinkan menonaktifkan user yang sedang login
         if ($user->id === auth()->id()) {
             return redirect()->route('admin.user.index')
-                ->with('error', 'Tidak dapat menghapus akun yang sedang digunakan.');
+                ->with('error', 'Tidak dapat menonaktifkan akun yang sedang digunakan.');
         }
         
         // Cek apakah user yang login bisa mengelola user ini
         if (!$this->canManageUser($user)) {
             return redirect()->route('admin.user.index')
-                ->with('error', 'Anda tidak memiliki izin untuk menghapus pengguna ini.');
+                ->with('error', 'Anda tidak memiliki izin untuk menonaktifkan pengguna ini.');
         }
 
-        $user->delete();
+        $user->update([
+            'is_active' => false,
+        ]);
 
         return redirect()->route('admin.user.index')
-            ->with('success', 'Pengguna berhasil dihapus.');
+            ->with('success', 'Akun berhasil dinonaktifkan.');
+    }
+
+    /**
+     * Mengaktifkan kembali user yang sebelumnya dinonaktifkan.
+     */
+    public function activate($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Proteksi: kolom `is_active` perlu ditambahkan lewat migration.
+        if (!Schema::hasColumn('user', 'is_active')) {
+            return redirect()->route('admin.user.index')
+                ->with('error', 'Fitur aktivasi belum siap: jalankan migration `is_active` terlebih dahulu.');
+        }
+
+        // Jangan izinkan untuk mengaktifkan user yang sedang login (kebetulan tidak dibutuhkan).
+        if ($user->id === auth()->id()) {
+            return redirect()->route('admin.user.index')
+                ->with('error', 'Tidak dapat memproses akun yang sedang digunakan.');
+        }
+
+        // Cek apakah user yang login bisa mengelola user ini
+        if (!$this->canManageUser($user)) {
+            return redirect()->route('admin.user.index')
+                ->with('error', 'Anda tidak memiliki izin untuk mengaktifkan pengguna ini.');
+        }
+
+        if ($user->is_active ?? true) {
+            return redirect()->route('admin.user.index')
+                ->with('error', 'Akun ini sudah aktif.');
+        }
+
+        $user->update([
+            'is_active' => true,
+        ]);
+
+        return redirect()->route('admin.user.index')
+            ->with('success', 'Akun berhasil diaktifkan kembali.');
     }
 }
 

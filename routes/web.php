@@ -11,6 +11,7 @@ use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\AkomodasiController;
 use App\Http\Controllers\ItineraryController;
 use App\Http\Controllers\PermohonanAkunController;
+use App\Http\Controllers\AdminPermohonanAkunController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\WisatawanDashboardController;
 
@@ -74,9 +75,15 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
             Route::resource('destinasi', DestinasiController::class);
             Route::resource('paket', PaketController::class);
             Route::resource('user', UserController::class);
+            Route::post('user/{id}/activate', [UserController::class, 'activate'])->name('user.activate');
             Route::resource('libur_nasional', LiburNasionalController::class);
             Route::resource('restaurant', RestaurantController::class);
             Route::resource('akomodasi', AkomodasiController::class);
+
+            // Permohonan akun approval workflow
+            Route::get('/permohonan-akun', [AdminPermohonanAkunController::class, 'index'])->name('permohonan.index');
+            Route::post('/permohonan-akun/{id}/approve', [AdminPermohonanAkunController::class, 'approve'])->name('permohonan.approve');
+            Route::post('/permohonan-akun/{id}/reject', [AdminPermohonanAkunController::class, 'reject'])->name('permohonan.reject');
         });
     });
 
