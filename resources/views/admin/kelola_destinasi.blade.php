@@ -145,7 +145,12 @@
                                 id="jam_buka" 
                                 name="jam_buka" 
                                 class="form-control" 
-                                value="{{ old('jam_buka', $destinasi->jam_buka ?? '') }}"
+                                value="{{ old(
+                                    'jam_buka',
+                                    (isset($destinasi) && $destinasi->jam_buka)
+                                        ? \Carbon\Carbon::parse($destinasi->jam_buka)->format('H:i')
+                                        : ''
+                                ) }}"
                             >
                             <small style="color: #718096; font-size: 0.875rem;">Waktu buka destinasi (opsional)</small>
                         </div>
@@ -159,7 +164,12 @@
                                 id="jam_tutup" 
                                 name="jam_tutup" 
                                 class="form-control" 
-                                value="{{ old('jam_tutup', $destinasi->jam_tutup ?? '') }}"
+                                value="{{ old(
+                                    'jam_tutup',
+                                    (isset($destinasi) && $destinasi->jam_tutup)
+                                        ? \Carbon\Carbon::parse($destinasi->jam_tutup)->format('H:i')
+                                        : ''
+                                ) }}"
                             >
                             <small style="color: #718096; font-size: 0.875rem;">Waktu tutup destinasi (opsional)</small>
                         </div>
@@ -189,14 +199,18 @@
                                 <i class="fas fa-money-bill-wave"></i> Biaya
                             </label>
                             <input 
-                                type="number" 
+                                type="text"
                                 id="biaya" 
                                 name="biaya" 
                                 class="form-control" 
-                                step="0.01"
-                                min="0"
-                                value="{{ old('biaya', $destinasi->biaya ?? '') }}"
-                                placeholder="Masukkan biaya masuk (Rp)"
+                                inputmode="decimal"
+                                value="{{ old(
+                                    'biaya',
+                                    (isset($destinasi) && $destinasi)
+                                        ? number_format((float) $destinasi->biaya, 0, ',', '.')
+                                        : ''
+                                ) }}"
+                                placeholder="Contoh: 15.000"
                             >
                             <small style="color: #718096; font-size: 0.875rem;">Biaya masuk destinasi (opsional)</small>
                         </div>

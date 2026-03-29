@@ -124,15 +124,19 @@
                                 <i class="fas fa-money-bill-wave"></i> Harga <span style="color: #e53e3e;">*</span>
                             </label>
                             <input 
-                                type="number" 
+                                type="text"
                                 id="harga" 
                                 name="harga" 
                                 class="form-control" 
                                 required 
-                                step="0.01"
-                                min="0"
-                                value="{{ old('harga', $paket->harga ?? '') }}"
-                                placeholder="Contoh: 1500000"
+                                inputmode="decimal"
+                                value="{{ old(
+                                    'harga',
+                                    (isset($paket) && $paket)
+                                        ? number_format((float) $paket->harga, 0, ',', '.')
+                                        : ''
+                                ) }}"
+                                placeholder="Contoh: 15.000"
                             >
                             <small style="color: #718096; font-size: 0.875rem;">Harga paket wisata (Rp)</small>
                         </div>

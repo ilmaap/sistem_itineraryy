@@ -300,6 +300,9 @@ class ItineraryController extends Controller
             'selected_destinasi_ids.*' => 'integer|exists:destinasi,id'
         ]);
         
+        $maxPerHari = 4;
+        $maxCapacity = $validated['jumlah_hari'] * $maxPerHari;
+
         // 1. Ambil destinasi otomatis
         // Map kode kategori ke nama kategori lengkap
         $kategoriMap = [
@@ -351,26 +354,77 @@ class ItineraryController extends Controller
                     ];
                 });
         }
-        
-        // 3. Gabungkan dan hapus duplikat
-        $allDestinasi = collect($destinasiOtomatis)
-            ->merge($destinasiManual)
-            ->unique('id')
-            ->values()
-            ->toArray();
-        
-        // 4. Optimasi rute menggunakan Nearest Neighbor
-        $optimizedDestinasi = $this->optimizeRoute(
-            $validated['start_lat'],
-            $validated['start_lng'],
-            $allDestinasi
-        );
-        
-        // 5. Bagi destinasi per hari (minimal 3, maksimal 4 per hari)
-        $destinasiPerHari = $this->distributeDestinations(
-            $optimizedDestinasi,
-            $validated['jumlah_hari']
-        );
+
+        // Jika user memilih destinasi manual, pastikan destinasi tersebut TERIKUT,
+        // tetapi urutan akhir tetap mengikuti hasil Nearest Neighbor (Haversine),
+        // sama seperti mode full otomatis.
+        $selectedManualIds = $destinasiManual->pluck('id')->map(fn($v) => (int)$v)->values()->all();
+        if (!empty($selectedManualIds)) {
+            // 3a. Manual (unique) dibatasi kapasitas
+            $manualList = $destinasiManual
+                ->unique('id')
+                ->values()
+                ->take($maxCapacity)
+                ->toArray();
+
+            // 3b. Kandidat otomatis (tanpa duplikat manual)
+            $autoCandidates = collect($destinasiOtomatis)
+                ->reject(function ($d) use ($selectedManualIds) {
+                    return in_array((int)($d['id'] ?? 0), $selectedManualIds, true);
+                })
+                ->values()
+                ->toArray();
+
+            // 3c. Isi sisa kapasitas dari otomatis yang sudah dioptimasi
+            $needAuto = max(0, $maxCapacity - count($manualList));
+            $pickedAuto = [];
+            if ($needAuto > 0) {
+                $pickedAuto = array_slice(
+                    $this->optimizeRoute($validated['start_lat'], $validated['start_lng'], $autoCandidates),
+                    0,
+                    $needAuto
+                );
+            }
+
+            // 4. Optimasi rute pada SET FINAL (manual + auto) agar urutan konsisten NN
+            $finalDestinasi = collect($manualList)
+                ->merge($pickedAuto)
+                ->unique('id')
+                ->values()
+                ->toArray();
+
+            $optimizedDestinasi = $this->optimizeRoute(
+                $validated['start_lat'],
+                $validated['start_lng'],
+                $finalDestinasi
+            );
+
+            // 5. Bagi destinasi per hari (minimal 3, maksimal 4 per hari)
+            $destinasiPerHari = $this->distributeDestinations(
+                $optimizedDestinasi,
+                $validated['jumlah_hari']
+            );
+        } else {
+            // 3. Gabungkan dan hapus duplikat (full otomatis)
+            $allDestinasi = collect($destinasiOtomatis)
+                ->unique('id')
+                ->values()
+                ->take($maxCapacity)
+                ->toArray();
+
+            // 4. Optimasi rute menggunakan Nearest Neighbor
+            $optimizedDestinasi = $this->optimizeRoute(
+                $validated['start_lat'],
+                $validated['start_lng'],
+                $allDestinasi
+            );
+
+            // 5. Bagi destinasi per hari (minimal 3, maksimal 4 per hari)
+            $destinasiPerHari = $this->distributeDestinations(
+                $optimizedDestinasi,
+                $validated['jumlah_hari']
+            );
+        }
         
         // 6. Hitung jadwal dengan waktu tempuh
         $tanggal = new \DateTime($validated['tanggal_keberangkatan']);
@@ -1183,10 +1237,10 @@ class ItineraryController extends Controller
      * Hitung waktu tempuh dalam menit berdasarkan jarak, tanggal, dan jenis jalur
      * 
      * Logika kecepatan:
-     * - High season + tol: 130 km/jam (lebih cepat dari high season non tol)
-     * - High season + non tol: 100 km/jam (lebih lambat)
-     * - Low season + tol: 150 km/jam (paling cepat)
-     * - Low season + non tol: 120 km/jam (lebih cepat dari high season, tapi tidak lebih cepat dari low season tol)
+     * - High season + tol: 70 km/jam (lebih cepat dari high season non tol)
+     * - High season + non tol: 50 km/jam (lebih lambat)
+     * - Low season + tol: 90 km/jam (paling cepat)
+     * - Low season + non tol: 70 km/jam (lebih cepat dari high season, tapi tidak lebih cepat dari low season tol)
      */
     private function hitungWaktuTempuhMenit($jarakKm, $tanggal, $jenisJalur = 'tol')
     {
@@ -1198,16 +1252,16 @@ class ItineraryController extends Controller
         if ($isHighSeason) {
             // High season
             if ($jenisJalur === 'tol') {
-                $kecepatan = 130; // km/jam - lebih cepat karena tol
+                $kecepatan = 70; // km/jam - lebih cepat karena tol
             } else {
-                $kecepatan = 100; // km/jam - lebih lambat karena non tol
+                $kecepatan = 50; // km/jam - lebih lambat karena non tol
             }
         } else {
             // Low season
             if ($jenisJalur === 'tol') {
-                $kecepatan = 150; // km/jam - paling cepat
+                $kecepatan = 90; // km/jam - paling cepat
             } else {
-                $kecepatan = 120; // km/jam - lebih cepat dari high season, tapi tidak lebih cepat dari low season tol
+                $kecepatan = 70; // km/jam - lebih cepat dari high season, tapi tidak lebih cepat dari low season tol
             }
         }
         

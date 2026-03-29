@@ -10,6 +10,85 @@ use Illuminate\Support\Facades\Storage;
 class PaketController extends Controller
 {
     /**
+     * Normalisasi input uang agar format Indonesia seperti "15.000" -> "15000"
+     * sebelum validasi + simpan ke kolom decimal.
+     */
+    private function normalizeMoneyToDotDecimal(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        $negative = false;
+        if (isset($value[0]) && $value[0] === '-') {
+            $negative = true;
+            $value = substr($value, 1);
+        }
+
+        $clean = '';
+        $len = strlen($value);
+        for ($i = 0; $i < $len; $i++) {
+            $ch = $value[$i];
+            if (($ch >= '0' && $ch <= '9') || $ch === '.' || $ch === ',') {
+                $clean .= $ch;
+            }
+        }
+
+        if ($clean === '') {
+            return null;
+        }
+
+        $hasDot = strpos($clean, '.') !== false;
+        $hasComma = strpos($clean, ',') !== false;
+
+        if ($hasDot && $hasComma) {
+            $clean = str_replace('.', '', $clean);
+            $clean = str_replace(',', '.', $clean);
+        } elseif ($hasComma) {
+            $clean = str_replace(',', '.', $clean);
+        } else {
+            $parts = explode('.', $clean);
+            if (count($parts) === 2 && strlen($parts[1]) === 3) {
+                // Contoh: "15.000" -> "15000"
+                $clean = $parts[0] . $parts[1];
+            } elseif (count($parts) >= 3) {
+                $assumeThousands = true;
+                for ($i = 0; $i < count($parts) - 1; $i++) {
+                    if (strlen($parts[$i]) !== 3) {
+                        $assumeThousands = false;
+                        break;
+                    }
+                }
+
+                if ($assumeThousands) {
+                    $last = end($parts);
+                    $clean = '';
+                    for ($i = 0; $i < count($parts) - 1; $i++) {
+                        $clean .= $parts[$i];
+                    }
+                    $clean .= $last;
+                }
+            }
+        }
+
+        $digits = str_replace(['.', ','], '', $clean);
+        if ($digits === '' || !is_numeric($digits)) {
+            return null;
+        }
+
+        if ($negative) {
+            return '-' . $clean;
+        }
+
+        return $clean;
+    }
+
+    /**
      * Menampilkan daftar paket
      */
     public function index(Request $request)
@@ -48,6 +127,10 @@ class PaketController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge([
+            'harga' => $this->normalizeMoneyToDotDecimal($request->input('harga')),
+        ]);
+
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -125,6 +208,10 @@ class PaketController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->merge([
+            'harga' => $this->normalizeMoneyToDotDecimal($request->input('harga')),
+        ]);
+
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
