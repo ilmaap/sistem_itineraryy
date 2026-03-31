@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Pengguna - Itinerary Wisata</title>
+    <title>{{ auth()->user()->role === 'admin' ? 'Kelola Wisatawan' : 'Kelola Pengguna' }} - Itinerary Wisata</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/adminnavbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/useradmin.css') }}">
@@ -16,13 +16,13 @@
             <div class="page-header">
                 <div class="page-header-left">
                     <h1 class="page-title">
-                        Kelola Pengguna
+                        {{ auth()->user()->role === 'admin' ? 'Kelola Wisatawan' : 'Kelola Pengguna' }}
                     </h1>
-                    <h4 class="page-subtitle">Tambah, edit, atau nonaktifkan pengguna</h4>
+                    <h4 class="page-subtitle">Tambah, edit, atau nonaktifkan {{ auth()->user()->role === 'admin' ? 'wisatawan' : 'pengguna' }}</h4>
                 </div>
                 <a href="{{ route('admin.user.create') }}" class="btn-add">
                     <i class="fas fa-plus"></i>
-                    Tambah Pengguna
+                    {{ auth()->user()->role === 'admin' ? 'Tambah Wisatawan' : 'Tambah Pengguna' }}
                 </a>
             </div>
 
@@ -44,7 +44,7 @@
                         type="text" 
                         name="search" 
                         class="search-input" 
-                        placeholder="Cari pengguna, nama, email, atau role..."
+                        placeholder="{{ auth()->user()->role === 'admin' ? 'Cari wisatawan, nama, email...' : 'Cari pengguna, nama, email, atau role...' }}"
                         value="{{ $search }}"
                     >
                     <button type="submit" class="btn-search">
@@ -64,7 +64,7 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Pengguna</th>
+                                <th>{{ auth()->user()->role === 'admin' ? 'Nama Wisatawan' : 'Nama Pengguna' }}</th>
                                 <th>Email</th>
                                 <th>Tanggal Registrasi</th>
                                 <th>Role</th>
@@ -149,7 +149,7 @@
 
                     <div class="pagination-info">
                         Menampilkan data ke-{{ $user->firstItem() }} sampai {{ $user->lastItem() }} 
-                        dari {{ $user->total() }} pengguna 
+                        dari {{ $user->total() }} {{ auth()->user()->role === 'admin' ? 'wisatawan' : 'pengguna' }} 
                     </div>
 
                     <div class="pagination-buttons">
@@ -168,12 +168,12 @@
                 @else
                     <div class="empty-state">
                         <i class="fas fa-users"></i>
-                        <h3>Tidak ada data pengguna</h3>
-                        <p>{{ $search ? 'Tidak ditemukan pengguna yang sesuai dengan pencarian.' : 'Belum ada pengguna yang ditambahkan.' }}</p>
+                        <h3>{{ auth()->user()->role === 'admin' ? 'Tidak ada data wisatawan' : 'Tidak ada data pengguna' }}</h3>
+                        <p>{{ $search ? 'Tidak ditemukan ' . (auth()->user()->role === 'admin' ? 'wisatawan' : 'pengguna') . ' yang sesuai dengan pencarian.' : 'Belum ada ' . (auth()->user()->role === 'admin' ? 'wisatawan' : 'pengguna') . ' yang ditambahkan.' }}</p>
                         @if(!$search)
                             <a href="{{ route('admin.user.create') }}" class="btn-add" style="margin-top: 1rem;">
                                 <i class="fas fa-plus"></i>
-                                Tambah Pengguna Pertama
+                                Tambah {{ auth()->user()->role === 'admin' ? 'Wisatawan' : 'Pengguna' }} Pertama
                             </a>
                         @endif
                     </div>

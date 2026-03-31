@@ -2,7 +2,7 @@
 <nav class="navbar">
     <div class="nav-container">
         <a href="{{ route('wisatawan.dashboard') }}" class="logo">
-            <i class="fas fa-route"></i>
+            <img src="{{ asset('/storage/logo.ico') }}" alt="Logo" class="logo-image">
             <span>Itinerary Wisata</span>
         </a>
         <ul class="nav-menu" id="navMenu">

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ isset($user) ? 'Edit' : 'Tambah' }} Pengguna - Itinerary Wisata</title>
+    <title>{{ isset($user) ? 'Edit' : 'Tambah' }} {{ auth()->user()->role === 'admin' ? 'Wisatawan' : 'Pengguna' }} - Itinerary Wisata</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/adminnavbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/userkelolaadmin.css') }}">
@@ -15,9 +15,9 @@
         <div class="user-form-container">
             <div class="page-header">
                 <h1 class="page-title">
-                    <i class="fas fa-user"></i> {{ isset($user) ? 'Edit' : 'Tambah' }} Pengguna
+                    <i class="fas fa-user"></i> {{ isset($user) ? 'Edit' : 'Tambah' }} {{ auth()->user()->role === 'admin' ? 'Wisatawan' : 'Pengguna' }}
                 </h1>
-                <h4 class="page-subtitle">{{ isset($user) ? 'Ubah informasi pengguna' : 'Tambahkan pengguna baru' }}</h4>
+                <h4 class="page-subtitle">{{ isset($user) ? 'Ubah informasi ' . (auth()->user()->role === 'admin' ? 'wisatawan' : 'pengguna') : 'Tambahkan ' . (auth()->user()->role === 'admin' ? 'wisatawan' : 'pengguna') . ' baru' }}</h4>
             </div>
 
             @if (session('success'))
@@ -134,7 +134,7 @@
                             <i class="fas fa-arrow-left"></i> Kembali
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> {{ isset($user) ? 'Update Pengguna' : 'Simpan Pengguna' }}
+                            <i class="fas fa-save"></i> {{ isset($user) ? 'Update ' . (auth()->user()->role === 'admin' ? 'Wisatawan' : 'Pengguna') : 'Simpan ' . (auth()->user()->role === 'admin' ? 'Wisatawan' : 'Pengguna') }}
                         </button>
                     </div>
                 </form>

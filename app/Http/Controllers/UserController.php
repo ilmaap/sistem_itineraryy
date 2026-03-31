@@ -122,8 +122,9 @@ class UserController extends Controller
 
         User::create($validated);
 
+        $msg = auth()->user()->role === 'admin' ? 'Wisatawan berhasil ditambahkan.' : 'Pengguna berhasil ditambahkan.';
         return redirect()->route('admin.user.index')
-            ->with('success', 'Pengguna berhasil ditambahkan.');
+            ->with('success', $msg);
     }
 
     /**
@@ -182,8 +183,9 @@ class UserController extends Controller
 
         $user->update($validated);
 
+        $msg = auth()->user()->role === 'admin' ? 'Wisatawan berhasil diperbarui.' : 'Pengguna berhasil diperbarui.';
         return redirect()->route('admin.user.index')
-            ->with('success', 'Pengguna berhasil diperbarui.');
+            ->with('success', $msg);
     }
 
     /**

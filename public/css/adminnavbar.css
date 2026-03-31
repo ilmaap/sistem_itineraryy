@@ -10,12 +10,12 @@
     --primary-color: #14b8a6;
     --primary-dark: #0d9488;
     --primary-light: #5eead4;
-    
+
     /* Background Colors */
     --bg-white: #ffffff;
     --bg-light: #f8fafc;
     --bg-lighter: #f1f5f9;
-    
+
     /* Text Colors */
     --text-dark: #0f172a;
     --text-medium: #334155;
@@ -29,7 +29,7 @@
     left: 0;
     right: 0;
     background: var(--bg-white);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     padding: 1rem 0;
 }
@@ -59,6 +59,13 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-size: 2rem;
+}
+
+.logo .logo-image {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    vertical-align: middle;
 }
 
 .nav-menu {
@@ -138,7 +145,7 @@
     left: 0;
     background: white;
     min-width: 200px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     border-radius: 8px;
     padding: 0.5rem 0;
     margin-top: 0.5rem;
@@ -202,7 +209,7 @@
         background: white;
         width: 100%;
         padding: 2rem;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         transition: left 0.3s ease;
         z-index: 999;
         gap: 0;
@@ -306,4 +313,3 @@
         padding-left: 3rem;
     }
 }
-

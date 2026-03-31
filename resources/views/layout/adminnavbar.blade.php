@@ -2,7 +2,7 @@
 <nav class="navbar">
     <div class="nav-container">
         <a href="{{ route('admin.dashboard') }}" class="logo">
-            <i class="fas fa-route"></i>
+            <img src="{{ asset('/storage/logo.ico') }}" alt="Logo" class="logo-image">
             <span>Itinerary Wisata</span>
         </a>
         <ul class="nav-menu" id="navMenu">
@@ -21,14 +21,14 @@
                 </li>
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle {{ request()->routeIs('admin.user.*') || request()->routeIs('admin.permohonan.*') ? 'active' : '' }}">
-                    Kelola Pengguna
+                    {{ auth()->user()->role === 'admin' ? 'Manage Wisatawan' : 'Manage Pengguna' }}
                     <i class="fas fa-chevron-down"></i>
                 </a>
                 <ul class="dropdown-menu">
                     <li>
                         <a href="{{ route('admin.user.index') }}"
                            class="{{ request()->routeIs('admin.user.*') ? 'active' : '' }}">
-                            Manajemen Pengguna
+                            {{ auth()->user()->role === 'admin' ? 'Kelola Wisatawan' : 'Kelola Pengguna' }}
                         </a>
                     </li>
                     <li>
