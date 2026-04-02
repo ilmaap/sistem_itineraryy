@@ -14,6 +14,7 @@ use App\Http\Controllers\PermohonanAkunController;
 use App\Http\Controllers\AdminPermohonanAkunController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\WisatawanDashboardController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +68,10 @@ Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->na
 
 // Dashboard Routes (Protected)
 Route::middleware(['auth', 'prevent.back'])->group(function () {
+    // Profil Akun - bisa diakses semua role
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+
     // Admin Routes - hanya untuk admin & super_admin
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');

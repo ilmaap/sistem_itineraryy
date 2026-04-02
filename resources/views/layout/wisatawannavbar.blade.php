@@ -11,11 +11,20 @@
             <li><a href="{{ route('wisatawan.paket.index') }}">Paket Wisata</a></li>
             <li><a href="{{ route('wisatawan.itinerary.index') }}">Riwayat</a></li>
             <!-- <li><a href="#">Kelola Hari Libur</a></li> -->
-            <li>
-                <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display: inline;">
-                    @csrf
-                    <a href="#" onclick="confirmLogout(event); return false;">Keluar</a>
-                </form>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                    <i class="fas fa-user-circle" style="font-size: 1.1rem;"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <ul class="dropdown-menu" style="min-width: 80px;">
+                    <li><a href="{{ route('profile.index') }}" class="{{ request()->routeIs('profile.index') ? 'active' : '' }}">Akun</a></li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display: inline; width: 100%;">
+                            @csrf
+                            <a href="#" onclick="confirmLogout(event); return false;">Keluar</a>
+                        </form>
+                    </li>
+                </ul>
             </li>
         </ul>
         <div class="hamburger" id="hamburger">
@@ -46,13 +55,62 @@
             }
         });
 
-        // Close menu when clicking on a link
+        // Close menu when clicking on a link (except dropdown toggle)
         navMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
+            // Skip dropdown toggle and dropdown menu links
+            if (!link.closest('.dropdown')) {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 767) {
+                        navMenu.classList.remove('active');
+                        hamburger.classList.remove('active');
+                    }
+                });
+            }
+        });
+    }
+
+    // Dropdown toggle for mobile (handles ALL dropdowns).
+    const dropdownToggles = navMenu ? navMenu.querySelectorAll('.dropdown-toggle') : document.querySelectorAll('.dropdown-toggle');
+
+    if (dropdownToggles && dropdownToggles.length > 0) {
+        const allDropdowns = navMenu ? navMenu.querySelectorAll('.dropdown') : document.querySelectorAll('.dropdown');
+
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function (e) {
                 if (window.innerWidth <= 767) {
-                    navMenu.classList.remove('active');
-                    hamburger.classList.remove('active');
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const dropdown = toggle.closest('.dropdown');
+                    if (!dropdown) return;
+
+                    allDropdowns.forEach(d => {
+                        if (d !== dropdown) d.classList.remove('active');
+                    });
+                    dropdown.classList.toggle('active');
                 }
+            });
+        });
+
+        document.addEventListener('click', function (e) {
+            if (window.innerWidth <= 767) {
+                const clickedInsideDropdown = e.target && e.target.closest && e.target.closest('.dropdown');
+                if (!clickedInsideDropdown) {
+                    allDropdowns.forEach(d => d.classList.remove('active'));
+                }
+            }
+        });
+
+        allDropdowns.forEach(dropdown => {
+            const dropdownLinks = dropdown.querySelectorAll('.dropdown-menu a');
+            dropdownLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 767) {
+                        dropdown.classList.remove('active');
+                        navMenu.classList.remove('active');
+                        hamburger.classList.remove('active');
+                    }
+                });
             });
         });
     }

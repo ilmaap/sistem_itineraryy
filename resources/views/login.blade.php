@@ -61,7 +61,9 @@
                             class="input with-icon"
                             placeholder="Masukkan password"
                             required
+                            style="padding-right: 2.5rem;"
                         >
+                        <i class="fa-regular fa-eye toggle-password" onclick="togglePasswordVisibility('password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; transition: color 0.25s ease;"></i>
                     </div>
                 </div>
 
@@ -76,6 +78,20 @@
             </div>
         </section>
     </main>
+    <script>
+        function togglePasswordVisibility(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                iconElement.classList.remove('fa-eye');
+                iconElement.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                iconElement.classList.remove('fa-eye-slash');
+                iconElement.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 </html>
 

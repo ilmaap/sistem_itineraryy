@@ -134,10 +134,10 @@
     transition: transform 0.3s;
 }
 
-.dropdown:hover .dropdown-toggle i,
+/* .dropdown:hover .dropdown-toggle i,
 .dropdown.active .dropdown-toggle i {
     transform: rotate(180deg);
-}
+} */
 
 .dropdown-menu {
     position: absolute;
@@ -260,9 +260,9 @@
         transition: transform 0.3s ease;
     }
 
-    .dropdown.active .dropdown-toggle i {
+    /* .dropdown.active .dropdown-toggle i {
         transform: rotate(180deg);
-    }
+    } */
 
     .dropdown-menu {
         position: static;

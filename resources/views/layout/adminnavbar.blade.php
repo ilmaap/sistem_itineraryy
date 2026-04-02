@@ -40,11 +40,20 @@
                 </ul>
             </li>
             <li><a href="{{ route('admin.libur_nasional.index') }}" class="{{ request()->routeIs('admin.libur_nasional.*') ? 'active' : '' }}">Kelola Hari Libur</a></li>
-            <li>
-                <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display: inline;">
-                    @csrf
-                    <a href="#" onclick="confirmLogout(event); return false;">Keluar</a>
-                </form>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                    <i class="fas fa-user-circle" style="font-size: 1.1rem;"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <ul class="dropdown-menu" style="min-width: 80px;">
+                    <li><a href="{{ route('profile.index') }}" class="{{ request()->routeIs('profile.index') ? 'active' : '' }}">Akun</a></li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display: inline; width: 100%;">
+                            @csrf
+                            <a href="#" onclick="confirmLogout(event); return false;">Keluar</a>
+                        </form>
+                    </li>
+                </ul>
             </li>
         </ul>
         <div class="hamburger" id="hamburger">
