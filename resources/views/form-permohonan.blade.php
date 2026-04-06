@@ -81,7 +81,7 @@
                         <p style="color: #0e7490; font-size: 0.9375rem; line-height: 1.7; margin-bottom: 1.25rem;">
                             Form permohonan akun ini memungkinkan Anda untuk mengajukan permohonan akses ke sistem itinerary wisata. Setelah mengisi form, tim kami akan melakukan verifikasi dan menghubungi Anda melalui email atau nomor telepon yang terdaftar.
                         </p>
-                        <div style="background: #fff; border-radius: 12px; padding: 1.25rem; border-left: 3px solid #14b8a6;">
+                        <!-- <div style="background: #fff; border-radius: 12px; padding: 1.25rem; border-left: 3px solid #14b8a6;">
                             <h4 style="font-size: 0.9375rem; font-weight: 600; color: #0f766e; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                                 <i class="fas fa-clock" style="color: #14b8a6;"></i>
                                 Waktu Proses
@@ -89,7 +89,7 @@
                             <p style="color: #0e7490; font-size: 0.875rem; line-height: 1.6; margin: 0;">
                                 Proses verifikasi membutuhkan waktu <strong>1-3 hari kerja</strong>. Kami akan mengirimkan notifikasi melalui email setelah permohonan Anda diproses.
                             </p>
-                        </div>
+                        </div> -->
                     </div>
 
                     <!-- Benefits Card -->

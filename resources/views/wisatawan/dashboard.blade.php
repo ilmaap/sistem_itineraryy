@@ -61,16 +61,16 @@
                         <div class="action-icon">
                             <i class="fas fa-map"></i>
                         </div>
-                        <div class="action-title">Destinasi Wisata</div>
-                        <div class="action-desc">Jelajahi destinasi menarik</div>
+                        <div class="action-title">Paket Wisata</div>
+                        <div class="action-desc">Jelajahi paket wisata menarik</div>
                     </div>
-                    <div class="action-card">
+                    <!-- <div class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-heart"></i>
                         </div>
                         <div class="action-title">Favorit</div>
                         <div class="action-desc">Destinasi favorit Anda</div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
