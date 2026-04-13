@@ -91,24 +91,34 @@
                     </div>
 
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="password">
-                                <i class="fas fa-lock"></i> Password <span style="color: #e53e3e;">{{ isset($user) ? '' : '*' }}</span>
-                            </label>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                class="form-control" 
-                                {{ isset($user) ? '' : 'required' }}
-                                placeholder="{{ isset($user) ? 'Kosongkan jika tidak ingin mengubah password' : 'Masukkan password' }}"
-                            >
-                            @if(isset($user))
-                                <small style="color: #718096; font-size: 0.875rem;">Kosongkan jika tidak ingin mengubah password</small>
-                            @else
-                                <small style="color: #718096; font-size: 0.875rem;">Minimal 6 karakter</small>
+                        @if(env('AUTO_GENERATE_PASSWORD', false))
+                            @if(!isset($user))
+                                <div class="form-group" style="background-color: #ebf4ff; color: #2b6cb0; padding: 15px; border-radius: 8px; border: 1px dashed #bee3f8; align-self: flex-start; flex: 1;">
+                                    <i class="fas fa-info-circle" style="font-size: 1.2rem; margin-bottom: 5px;"></i><br>
+                                    <strong>Pembuatan Password Otomatis</strong><br>
+                                    <span style="font-size: 0.85rem">Sistem akan secara otomatis mengirimkan Tautan Link Pembuatan Password melalui Email agar pengguna dapat menentukan password mereka sendiri demi keamanan.</span>
+                                </div>
                             @endif
-                        </div>
+                        @else
+                            <div class="form-group">
+                                <label for="password">
+                                    <i class="fas fa-lock"></i> Password <span style="color: #e53e3e;">{{ isset($user) ? '' : '*' }}</span>
+                                </label>
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    name="password" 
+                                    class="form-control" 
+                                    {{ isset($user) ? '' : 'required' }}
+                                    placeholder="{{ isset($user) ? 'Kosongkan jika tidak ingin mengubah password' : 'Masukkan password' }}"
+                                >
+                                @if(isset($user))
+                                    <small style="color: #718096; font-size: 0.875rem;">Kosongkan jika tidak ingin mengubah password</small>
+                                @else
+                                    <small style="color: #718096; font-size: 0.875rem;">Minimal 6 karakter</small>
+                                @endif
+                            </div>
+                        @endif
 
                         <div class="form-group">
                             <label for="role">

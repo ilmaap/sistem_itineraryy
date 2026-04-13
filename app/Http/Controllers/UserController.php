@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
+use App\Mail\SetPasswordMail;
 
 class UserController extends Controller
 {
@@ -101,13 +105,20 @@ class UserController extends Controller
     {
         $allowedRoles = $this->getAllowedRoles();
         
-        $validated = $request->validate([
+        $autoGenerate = env('AUTO_GENERATE_PASSWORD', false);
+
+        $rules = [
             'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:user,email|max:255',
             'no_telp' => 'nullable|string|max:20',
-            'password' => 'required|string|min:6',
             'role' => 'required|in:' . implode(',', $allowedRoles),
-        ], [
+        ];
+
+        if (!$autoGenerate) {
+            $rules['password'] = 'required|string|min:6';
+        }
+
+        $validated = $request->validate($rules, [
             'nama.required' => 'Nama wajib diisi.',
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
@@ -118,11 +129,23 @@ class UserController extends Controller
             'role.in' => 'Role yang dipilih tidak diizinkan untuk akun Anda.',
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
+        $validated['password'] = $autoGenerate ? Hash::make(Str::random(40)) : Hash::make($validated['password']);
 
-        User::create($validated);
+        $user = User::create($validated);
+
+        if ($autoGenerate) {
+            /** @var \Illuminate\Auth\Passwords\PasswordBroker $passwordBroker */
+            $passwordBroker = Password::broker();
+            $token = $passwordBroker->createToken($user);
+            $url = route('password.reset', ['token' => $token, 'email' => $user->email]);
+            Mail::to($user->email)->send(new SetPasswordMail($user->nama, $url));
+        }
 
         $msg = auth()->user()->role === 'admin' ? 'Wisatawan berhasil ditambahkan.' : 'Pengguna berhasil ditambahkan.';
+        if ($autoGenerate) {
+            $msg .= ' Link pengaturan password telah dikirim ke emailnya.';
+        }
+        
         return redirect()->route('admin.user.index')
             ->with('success', $msg);
     }

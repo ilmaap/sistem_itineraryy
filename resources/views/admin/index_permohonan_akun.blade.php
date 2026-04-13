@@ -113,24 +113,30 @@
                                                     onsubmit="return confirm('Setujui permohonan ini dan buat akun wisatawan?')"
                                                 >
                                                     @csrf
-                                                    <input
-                                                        type="password"
-                                                        name="password"
-                                                        class="search-input"
-                                                        style="width: 100%;"
-                                                        placeholder="Password (min 6)"
-                                                        minlength="6"
-                                                        required
-                                                    >
-                                                    <input
-                                                        type="password"
-                                                        name="password_confirmation"
-                                                        class="search-input"
-                                                        style="width: 100%;"
-                                                        placeholder="Konfirmasi password"
-                                                        minlength="6"
-                                                        required
-                                                    >
+                                                    @if(env('AUTO_GENERATE_PASSWORD', false))
+                                                        <div style="background-color: #ebf4ff; color: #2b6cb0; padding: 10px; border-radius: 8px; margin-bottom: 5px; font-size: 0.85rem; text-align: left; line-height: 1.4;">
+                                                            <i class="fas fa-info-circle"></i> <strong>Mode Aman:</strong> Sistem akan membuatkan Password Acak dan secara otomatis akan mengirimkan Link untuk <strong>Atur Password Baru</strong> ke email wisatawan.
+                                                        </div>
+                                                    @else
+                                                        <input
+                                                            type="password"
+                                                            name="password"
+                                                            class="search-input"
+                                                            style="width: 100%;"
+                                                            placeholder="Password (min 6)"
+                                                            minlength="6"
+                                                            required
+                                                        >
+                                                        <input
+                                                            type="password"
+                                                            name="password_confirmation"
+                                                            class="search-input"
+                                                            style="width: 100%;"
+                                                            placeholder="Konfirmasi password"
+                                                            minlength="6"
+                                                            required
+                                                        >
+                                                    @endif
                                                     <button type="submit" class="btn-add">
                                                         <i class="fas fa-check"></i> Approve
                                                     </button>

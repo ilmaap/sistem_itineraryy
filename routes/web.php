@@ -15,6 +15,7 @@ use App\Http\Controllers\AdminPermohonanAkunController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\WisatawanDashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SetPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,10 @@ Route::post('/form-permohonan', [PermohonanAkunController::class, 'store'])->nam
 // Login Routes - Single UI untuk semua role
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+
+// Set Password Routes
+Route::get('/password/reset/{token}', [SetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset', [SetPasswordController::class, 'reset'])->name('password.update');
 
 // Legacy routes - tetap ada demi kompatibilitas, tapi diarahkan ke login tunggal
 Route::get('/login/wisatawan', function () {

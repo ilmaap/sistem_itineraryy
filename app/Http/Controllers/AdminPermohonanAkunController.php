@@ -6,6 +6,10 @@ use App\Models\PermohonanAkun;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
+use App\Mail\SetPasswordMail;
 
 class AdminPermohonanAkunController extends Controller
 {
@@ -84,14 +88,18 @@ class AdminPermohonanAkunController extends Controller
                 ->with('error', 'Permohonan ini tidak dapat disetujui karena statusnya sudah diproses.');
         }
 
-        $validated = $request->validate([
-            'password' => 'required|string|min:6|confirmed',
-            'password_confirmation' => 'required|string|min:6',
-        ], [
-            'password.required' => 'Password wajib diisi.',
-            'password.min' => 'Password minimal 6 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak sesuai.',
-        ]);
+        $autoGenerate = env('AUTO_GENERATE_PASSWORD', false);
+
+        if (!$autoGenerate) {
+            $validated = $request->validate([
+                'password' => 'required|string|min:6|confirmed',
+                'password_confirmation' => 'required|string|min:6',
+            ], [
+                'password.required' => 'Password wajib diisi.',
+                'password.min' => 'Password minimal 6 karakter.',
+                'password.confirmed' => 'Konfirmasi password tidak sesuai.',
+            ]);
+        }
 
         // Email harus unik karena kolom email di tabel `user` unique.
         if (User::where('email', $permohonan->email)->exists()) {
@@ -100,13 +108,21 @@ class AdminPermohonanAkunController extends Controller
                 ->with('error', 'Email permohonan sudah terdaftar, tidak bisa membuat akun duplikat.');
         }
 
-        User::create([
+        $user = User::create([
             'nama' => $permohonan->nama,
             'email' => $permohonan->email,
             'no_telp' => $permohonan->no_telp,
-            'password' => Hash::make($validated['password']),
+            'password' => $autoGenerate ? Hash::make(Str::random(40)) : Hash::make($validated['password']),
             'role' => 'wisatawan',
         ]);
+
+        if ($autoGenerate) {
+            /** @var \Illuminate\Auth\Passwords\PasswordBroker $passwordBroker */
+            $passwordBroker = Password::broker();
+            $token = $passwordBroker->createToken($user);
+            $url = route('password.reset', ['token' => $token, 'email' => $user->email]);
+            Mail::to($user->email)->send(new SetPasswordMail($user->nama, $url));
+        }
 
         $permohonan->update([
             'status' => PermohonanAkun::STATUS_DISETUJUI,
@@ -114,7 +130,7 @@ class AdminPermohonanAkunController extends Controller
 
         return redirect()
             ->route('admin.permohonan.index')
-            ->with('success', 'Permohonan berhasil disetujui dan akun wisatawan telah dibuat.');
+            ->with('success', 'Permohonan berhasil disetujui' . ($autoGenerate ? ' dan link pengaturan password telah dikirim ke email wisatawan.' : ' dan akun wisatawan telah dibuat.'));
     }
 
     /**
