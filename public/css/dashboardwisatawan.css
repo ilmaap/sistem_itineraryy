@@ -139,6 +139,7 @@
             text-align: center;
             transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
+            text-decoration: none;
         }
         
         .action-card:hover {

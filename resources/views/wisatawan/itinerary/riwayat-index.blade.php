@@ -90,9 +90,23 @@
             @endforeach
         </div>
 
-        <!-- Pagination -->
-        <div class="pagination-wrapper">
-            {{ $itineraries->links() }}
+        <div class="pagination-info" style="text-align: center; margin-top: 2rem; color: #64748b; font-size: 0.95rem;">
+            Menampilkan data ke-{{ $itineraries->firstItem() }} sampai {{ $itineraries->lastItem() }} 
+            dari {{ $itineraries->total() }} itinerary
+        </div>
+
+        <div class="pagination-buttons" style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; margin-bottom: 2rem;">
+            @if($itineraries->onFirstPage())
+                <span class="btn btn-outline" style="opacity: 0.5; cursor: not-allowed; padding: 0.5rem 1rem;"><i class="fas fa-arrow-left"></i> Sebelumnya</span>
+            @else
+                <a href="{{ $itineraries->previousPageUrl() }}" class="btn btn-outline" style="padding: 0.5rem 1rem;"><i class="fas fa-arrow-left"></i> Sebelumnya</a>
+            @endif
+
+            @if($itineraries->hasMorePages())
+                <a href="{{ $itineraries->nextPageUrl() }}" class="btn btn-outline" style="padding: 0.5rem 1rem;">Berikutnya <i class="fas fa-arrow-right"></i></a>
+            @else
+                <span class="btn btn-outline" style="opacity: 0.5; cursor: not-allowed; padding: 0.5rem 1rem;">Berikutnya <i class="fas fa-arrow-right"></i></span>
+            @endif
         </div>
     @else
         <div class="empty-state">

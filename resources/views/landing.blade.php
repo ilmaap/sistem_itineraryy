@@ -95,7 +95,8 @@
                     <p class="main-description">
                         Dengan sistem itinerary wisata berbasis website ini, Anda dapat merencanakan perjalanan dengan mudah. Sistem akan membantu menyusun rute optimal menggunakan algoritma cerdas untuk memaksimalkan pengalaman wisata Anda.
                     </p>
-                    <div class="main-features">
+                </div>
+                <div class="main-features">
                         <div class="main-feature-item">
                             <div class="main-feature-icon">
                                 <i class="fas fa-map-marked-alt"></i>
@@ -124,41 +125,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="main-content-right">
-                    <div class="map-illustration">
-                        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Background -->
-                            <rect width="400" height="400" fill="#f0fdfa"/>
-                            
-                            <!-- Border -->
-                            <rect x="20" y="20" width="360" height="360" fill="none" stroke="#14b8a6" stroke-width="3" stroke-dasharray="5,5"/>
-                            
-                            <!-- Administrative boundaries -->
-                            <path d="M50 100 L150 80 L200 120 L250 100 L350 130 L350 300 L250 320 L200 280 L150 300 L50 280 Z" 
-                                  fill="#5eead4" fill-opacity="0.3" stroke="#0d9488" stroke-width="2"/>
-                            
-                            <!-- Solo area -->
-                            <circle cx="150" cy="200" r="40" fill="#14b8a6" fill-opacity="0.4" stroke="#0d9488" stroke-width="2"/>
-                            <text x="150" y="205" text-anchor="middle" fill="#0f766e" font-size="14" font-weight="bold">Solo</text>
-                            
-                            <!-- Yogyakarta area -->
-                            <circle cx="250" cy="180" r="40" fill="#14b8a6" fill-opacity="0.4" stroke="#0d9488" stroke-width="2"/>
-                            <text x="250" y="185" text-anchor="middle" fill="#0f766e" font-size="12" font-weight="bold">Yogyakarta</text>
-                            
-                            <!-- Connection line -->
-                            <line x1="190" y1="200" x2="210" y2="180" stroke="#0d9488" stroke-width="2" stroke-dasharray="3,3"/>
-                            
-                            <!-- Landmarks -->
-                            <circle cx="120" cy="180" r="5" fill="#f59e0b"/>
-                            <circle cx="280" cy="160" r="5" fill="#f59e0b"/>
-                            <circle cx="180" cy="240" r="5" fill="#f59e0b"/>
-                            
-                            <!-- Title -->
-                            <text x="200" y="30" text-anchor="middle" fill="#0f766e" font-size="18" font-weight="bold">Peta Wilayah</text>
-                        </svg>
-                    </div>
-                </div>
             </div>
         </div>
     </section>

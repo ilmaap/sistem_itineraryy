@@ -79,7 +79,7 @@
                             </div>
                         </div>
                         <p style="color: #0e7490; font-size: 0.9375rem; line-height: 1.7; margin-bottom: 1.25rem;">
-                            Form permohonan akun ini memungkinkan Anda untuk mengajukan permohonan akses ke sistem itinerary wisata. Setelah mengisi form, tim kami akan melakukan verifikasi dan menghubungi Anda melalui email atau nomor telepon yang terdaftar.
+                            Form permohonan akun ini memungkinkan Anda untuk mengajukan permohonan akses ke sistem itinerary wisata. Setelah mengisi form, tim kami akan melakukan verifikasi dan menghubungi Anda melalui email yang terdaftar. Silahkan Cek email Anda secara berkala untuk mendapatkan update terkait status permohonan Anda.
                         </p>
                         <!-- <div style="background: #fff; border-radius: 12px; padding: 1.25rem; border-left: 3px solid #14b8a6;">
                             <h4 style="font-size: 0.9375rem; font-weight: 600; color: #0f766e; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">

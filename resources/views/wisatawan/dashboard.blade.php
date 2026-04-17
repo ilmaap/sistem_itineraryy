@@ -50,20 +50,20 @@
                         <div class="action-title">Buat Itinerary Baru</div>
                         <div class="action-desc">Buat rencana perjalanan baru</div>
                     </a>
-                    <div class="action-card">
+                    <a href="{{ route('wisatawan.itinerary.index') }}" class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-list"></i>
                         </div>
                         <div class="action-title">Itinerary Saya</div>
                         <div class="action-desc">Lihat itinerary yang sudah dibuat</div>
-                    </div>
-                    <div class="action-card">
+                    </a>
+                    <a href="{{ route('wisatawan.paket.index') }}" class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-map"></i>
                         </div>
                         <div class="action-title">Paket Wisata</div>
                         <div class="action-desc">Jelajahi paket wisata menarik</div>
-                    </div>
+                    </a>
                     <!-- <div class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-heart"></i>

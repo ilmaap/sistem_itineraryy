@@ -535,9 +535,9 @@ class ItineraryController extends Controller
         
         // Hitung kecepatan berdasarkan kombinasi season dan jenis jalur
         if ($isHighSeason) {
-            $kecepatan = $jenisJalur === 'tol' ? 130 : 100;
+            $kecepatan = $jenisJalur === 'tol' ? 70 : 50;
         } else {
-            $kecepatan = $jenisJalur === 'tol' ? 150 : 120;
+            $kecepatan = $jenisJalur === 'tol' ? 90 : 70;
         }
         
         // Format tanggal Indonesia
@@ -841,7 +841,7 @@ class ItineraryController extends Controller
                         if ($dayData && !empty($dayData['destinasi'])) {
                             $lastDest = end($dayData['destinasi']);
                             // Hitung jarak dari destinasi terakhir ke restaurant
-                            $restaurant = \App\Models\Restaurant::find($restaurantId);
+                            $restaurant = Restaurant::find($restaurantId);
                             if ($restaurant && isset($lastDest['lat']) && isset($lastDest['lng'])) {
                                 $jarak = $this->haversineDistance(
                                     $lastDest['lat'],
@@ -877,7 +877,7 @@ class ItineraryController extends Controller
                         if ($dayData && !empty($dayData['destinasi'])) {
                             $lastDest = end($dayData['destinasi']);
                             // Hitung jarak dari destinasi terakhir ke akomodasi
-                            $akomodasi = \App\Models\Akomodasi::find($akomodasiId);
+                            $akomodasi = Akomodasi::find($akomodasiId);
                             if ($akomodasi && isset($lastDest['lat']) && isset($lastDest['lng'])) {
                                 $jarak = $this->haversineDistance(
                                     $lastDest['lat'],
@@ -1072,6 +1072,11 @@ class ItineraryController extends Controller
              sin($dLng / 2) * sin($dLng / 2);
         
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        
+        // Tortuosity factor: Kalikan jarak lurus dengan 1.4 untuk 
+        // mengestimasi jarak jalan raya yang berkelok. (Dinonaktifkan sementara)
+        // $jarakLurus = $earthRadius * $c;
+        // return $jarakLurus * 1.4;
         
         return $earthRadius * $c;
     }

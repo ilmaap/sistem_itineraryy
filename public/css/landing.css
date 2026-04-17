@@ -806,6 +806,7 @@ body::-webkit-scrollbar {
 
 .main-features {
     margin-top: 2.5rem;
+    margin-left: 60px;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
