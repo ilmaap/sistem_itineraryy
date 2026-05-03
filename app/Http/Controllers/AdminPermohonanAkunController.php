@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use App\Mail\SetPasswordMail;
+use App\Mail\PermohonanDitolakMail;
 
 class AdminPermohonanAkunController extends Controller
 {
@@ -161,9 +162,12 @@ class AdminPermohonanAkunController extends Controller
             'status' => PermohonanAkun::STATUS_DITOLAK,
         ]);
 
+        // Kirim email pemberitahuan penolakan
+        Mail::to($permohonan->email)->send(new PermohonanDitolakMail($permohonan->nama));
+
         return redirect()
             ->route('admin.permohonan.index')
-            ->with('success', 'Permohonan ditolak.');
+            ->with('success', 'Permohonan ditolak dan email pemberitahuan telah dikirim.');
     }
 }
 

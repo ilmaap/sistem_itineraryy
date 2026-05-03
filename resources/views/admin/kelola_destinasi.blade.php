@@ -152,7 +152,7 @@
                                         : ''
                                 ) }}"
                             >
-                            <small style="color: #718096; font-size: 0.875rem;">Waktu buka destinasi (opsional)</small>
+                            <small style="color: #718096; font-size: 0.875rem;">Waktu buka destinasi</small>
                         </div>
 
                         <div class="form-group">
@@ -171,7 +171,7 @@
                                         : ''
                                 ) }}"
                             >
-                            <small style="color: #718096; font-size: 0.875rem;">Waktu tutup destinasi (opsional)</small>
+                            <small style="color: #718096; font-size: 0.875rem;">Waktu tutup destinasi</small>
                         </div>
                     </div>
 
@@ -212,7 +212,7 @@
                                 ) }}"
                                 placeholder="Contoh: 15.000"
                             >
-                            <small style="color: #718096; font-size: 0.875rem;">Biaya masuk destinasi (opsional)</small>
+                            <small style="color: #718096; font-size: 0.875rem;">Biaya masuk destinasi</small>
                         </div>
                     </div>
 
