@@ -201,7 +201,7 @@
             <div class="footer-content">
                 <div class="footer-brand">
                     <h3>
-                        <i class="fas fa-route"></i>
+                        <!-- <i class="fas fa-route"></i> -->
                         Portal Pariwisata
                     </h3>
                     <p>
